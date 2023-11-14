@@ -1,2 +1,3 @@
-# ML_project
-Exam project for the university course of Machine Learning.
+# ML project
+Exam project for the university course of Machine Learning. Prof. Alessio Micheli.
+
