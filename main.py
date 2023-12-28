@@ -1,10 +1,11 @@
-from loss import LossMSE
+
 from layers import *
-from data import createData
-
+from net import NeuralNet
+from data3 import generate_data
 # Create data
-X, y = createData(100, 3)
+X, y = generate_data(50)
 
+'''
 layer1 = LayerDense(2, 5, ActivationReLU())
 layer2 = LayerDense(5, 2, ActivationReLU())
 layer3 = LayerDense(2, 1, ActivationLinear())
@@ -19,5 +20,12 @@ for epoch in range(1000):
     #compute ouutput - expected output using numpy
     diff = np.subtract(layer3.outputActivated.T, y).T
     layer3.backward(diff)
-    layer2.backward(layer3.dcurrent, layer3.weights)
-    layer1.backward(layer2.dcurrent, layer2.weights)
+    layer2.backward(layer3.delta, layer3.weights)
+    layer1.backward(layer2.delta, layer2.weights)
+'''
+
+nn = NeuralNet([LayerDense(2, 5, ActivationReLU()),
+                LayerDense(5, 2, ActivationReLU()),
+                LayerDense(2, 1, ActivationLinear())])
+
+nn.train(X, y, 0.01, 1000)

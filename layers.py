@@ -1,48 +1,55 @@
 import numpy as np
 
 class LayerDense:
+
     def __init__(self, nInputs, nNeurons, activationFunction):
         self.weights = 0.10 * np.random.randn(nInputs, nNeurons)
         self.activationFunction = activationFunction
 
     def forward(self, inputs):
-        print(inputs.shape)
-        print(self.weights.shape)
-        print("--------------")
         self.outputNotActivated = np.dot(inputs, self.weights)
         self.outputActivated  = self.activationFunction.forward(self.outputNotActivated)
         return self.outputActivated
     
-    def backward(self, dvalues, learningRate = 0.001, weights_next_layer = None):
+    def backward(self, d_error_next_layer, learningRate = 0.001, weights_next_layer = None):
         '''
-        dvalues: the sigma of the next layer
+        Output layer:
+            - compute d_error (given by input)
+            - compute d_activation in respect to the layer inputs
+            - compute delta = d_error * d_activation
+            - gradient = np.dot(output_previous_layer.T, delta)
+            - bias = 1 * delta
+            - gradient descent: calculate the new weights
         '''
-        print(str(dvalues.shape) + " dvalues")
-        derivative = self.activationFunction.derivative(self.outputNotActivated)
-        print(str(self.outputActivated.shape) + " output")
-        print(str(derivative.shape) + " derivative")
-        
-        #this is not wrong but dvalues should be computed differently
-        #by computing the sum of dvalues * weights_next_layer
-        if weights_next_layer is not None:
-            dvalues = np.dot(dvalues, weights_next_layer.T)
-            print(str(dvalues.shape) + " dvalues")
+        if weights_next_layer is None: # Output layer
+            #compute d_activation in respect to the layer inputs
+            d_activation = self.activationFunction.derivative(self.outputNotActivated)
+            #compute delta = d_error * d_activation
+            self.delta = d_error_next_layer * d_activation
+            # calculate gradient
+            self.gradient = np.dot(self.outputActivated.T, self.delta) 
+            # calculate new weights
+            self.weights -= learningRate * self.gradient
+            # calculate bias
+            #self.bias = 1*self.delta
 
-        self.dcurrent = np.multiply(dvalues, derivative)
-        print(str(self.dcurrent.shape) + " dcurrent")
+        '''
+        Hidden layer:
+            - compute d_activation in respect to the layer inputs
+            - compute d_error =(np.dot)delta, weights_next_layer.T)
+            - compute delta = d_error * d_activation
+            - gradient = np.dot(output_previous_layer.T, delta)
+            - bias = 1 * delta
+            - gradient descent: calculate the new weights
+        '''
+        if weights_next_layer is not None: # Hidden layer
+            d_activation = self.activationFunction.derivative(self.outputNotActivated)
+            self.d_error = np.dot(d_error_next_layer, weights_next_layer.T)
+            self.delta = self.d_error * d_activation
+            self.gradient = np.dot(self.outputActivated.T, self.delta)
+            self.weights -= learningRate * self.gradient
+            #self.bias = 1*self.delta
 
-        self.dweights = np.multiply(self.dcurrent, self.outputActivated)
-        print(str(self.dweights.shape) + " dweights")
-        print(str(self.weights.sum(axis=0).shape) + " weights sum")
-        print(self.weights.sum(axis=0))
-        
-        self.weights -= learningRate*self.dweights.sum(axis=0)
-        print("------------------")
-        return self.dcurrent
-        
-
-
-    
 class ActivationReLU:
     def forward(self, inputs):
         self.output = np.maximum(0, inputs)
