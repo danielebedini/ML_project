@@ -15,8 +15,7 @@ class NeuralNet:
     def backward(self, X, y_true, learningRate):
         
         y = self.forward(X)
-        diff = np.subtract(y, y_true).T # TODO: check this
-
+        diff = np.subtract(y_true, y)# TODO: check this
         for i in range(len(self.layers)):
             back_index= len(self.layers)-1-i
             if i == 0: # output layer
