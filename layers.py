@@ -3,7 +3,7 @@ import numpy as np
 class LayerDense:
 
     def __init__(self, nInputs, nNeurons, activationFunction):
-        self.weights = 0.10 * np.random.randn(nInputs, nNeurons)
+        self.weights = 0.010 * np.random.randn(nInputs, nNeurons)
         self.activationFunction = activationFunction
 
     def forward(self, inputs):
