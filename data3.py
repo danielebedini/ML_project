@@ -11,13 +11,13 @@ def generate_data(n_inputs):
         x2 = np.random.randint(-10, 10)
         
         X.append([x1, x2])
-        y.append(x1+x2)
+        y.append([(x1+x2), (x1-x2)])
 
     X = np.array(X)
     y = np.array(y)
     
-    plt.scatter(X[:, 0], X[:, 1], c=y)
-    plt.show()
+#    plt.scatter(X[:, 0], X[:, 1], c=y)
+#    plt.show()
 
     return X, y
 
