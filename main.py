@@ -3,7 +3,7 @@ from layers import *
 from net import NeuralNet
 from data3 import generate_data
 # Create data
-X, y = generate_data(50)
+X, y = generate_data(400)
 
 '''
 layer1 = LayerDense(2, 5, ActivationReLU())
@@ -24,8 +24,9 @@ for epoch in range(1000):
     layer1.backward(layer2.delta, layer2.weights)
 '''
 
-nn = NeuralNet([LayerDense(2, 5, ActivationReLU()),
-                LayerDense(5, 2, ActivationReLU()),
-                LayerDense(2, 1, ActivationLinear())])
+nn = NeuralNet([LayerDense(2, 6, ActivationTanH()),
+                LayerDense(6, 2, ActivationLinear())])
 
-nn.train(X, y, 0.01, 1000)
+nn.train(X, y, 0.001, 300, batch_size=-1)
+
+print(nn.forward([[1, 2]]))
