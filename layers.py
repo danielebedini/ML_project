@@ -3,7 +3,7 @@ import numpy as np
 class LayerDense:
 
     def __init__(self, nInputs, nNeurons, activationFunction):
-        self.weights = 0.010 * np.random.randn(nInputs, nNeurons)
+        self.weights = 0.10 * np.random.randn(nInputs, nNeurons)
         self.activationFunction = activationFunction
 
     def forward(self, inputs):
@@ -30,9 +30,8 @@ class LayerDense:
             # calculate gradient
             self.gradient = np.dot(self.output_previous_layer.T, self.delta)
             # calculate new weights
-            self.weights += learningRate*self.gradient - 0.001*self.weights
-            # calculate bias
-            #self.bias = 1*self.delta
+            self.gradient = np.clip(self.gradient, -1, 1)
+            self.weights -= learningRate*self.gradient 
 
         '''
         Hidden layer:
@@ -48,8 +47,9 @@ class LayerDense:
             self.d_error = np.dot(d_next_layer, weights_next_layer.T)
             self.delta = self.d_error * d_activation
             self.gradient = np.dot(self.output_previous_layer.T, self.delta)
-            #self.weights += -learningRate*self.gradient - 0.001*self.weights
-            #self.bias = 1*self.delta
+            #clip gradient
+            self.gradient = np.clip(self.gradient, -1, 1)
+            self.weights -= learningRate*self.gradient
 
 class ActivationReLU:
     def forward(self, inputs):
