@@ -4,7 +4,8 @@ from loss import LossMSE
 from net import NeuralNet
 from data3 import generate_data
 # Create data
-X, y = generate_data(1500)
+X, y = generate_data(500)
+valX, valy = generate_data(100)
 
 '''
 layer1 = LayerDense(2, 5, ActivationReLU())
@@ -25,17 +26,36 @@ for epoch in range(1000):
     layer1.backward(layer2.delta, layer2.weights)
 '''
 
-nn = NeuralNet([LayerDense(2, 6, ActivationTanH()),
+nn = NeuralNet([LayerDense(2, 5, ActivationTanH()),
+                LayerDense(5, 16, ActivationTanH()),
+                LayerDense(16, 6, ActivationTanH()),
                 LayerDense(6, 2, ActivationLinear())])
 
-nn.train(X, y, 0.01, 300, batch_size=-1)
+#normalizziamo i cazzo di numeri per favore
+trError, valError = nn.train(X, y, ValX=valX, ValY=valy, learningRate=0.001, epochs=1000, batch_size=-1)
+
+import matplotlib.pyplot as plt
+plt.plot(trError, label="Training error")
+plt.plot(valError, label="Validation error")
+plt.legend()
+plt.show()
 
 #compute model error
 y_predicted = nn.forward(X)
 loss = LossMSE(y, y_predicted)
 print("Loss: ", loss)
-print(nn.forward([[1, 2]]))
 
+#predict some examples from the dataset
+new_X, new_y = generate_data(100)
+y_predicted = nn.forward(new_X)
+print("Test Loss: ", LossMSE(new_y, y_predicted))
+
+print("*************")
+print('new example: ', new_X[0])
+print('expected: ', new_y[0])
+print('real value: ', [2*(new_X[0][0]+new_X[0][1]), np.sin(new_X[0][0]-new_X[0][1])])
+print('predicted: ', nn.forward(new_X[0]))
+'''
 #recreate the network with tensorflow
 import tensorflow as tf
 from tensorflow import keras
@@ -52,4 +72,5 @@ model.fit(X, y, epochs=300, batch_size=149, verbose=0, validation_split=0)
 y_predicted = model.predict(X)
 loss = LossMSE(y, y_predicted)
 print("Loss: ", loss)
-print(model.predict([[1, 2]]))
+print(model.predict([[0.9, 0.5]]))
+'''
