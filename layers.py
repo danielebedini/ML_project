@@ -31,7 +31,7 @@ class LayerDense:
             self.gradient = np.dot(self.output_previous_layer.T, self.delta)
             # calculate new weights
             self.gradient = np.clip(self.gradient, -1, 1)
-            self.weights -= learningRate*self.gradient 
+            self.weights -= learningRate*self.gradient + 0.0001*self.weights
 
         '''
         Hidden layer:
@@ -49,7 +49,7 @@ class LayerDense:
             self.gradient = np.dot(self.output_previous_layer.T, self.delta)
             #clip gradient
             self.gradient = np.clip(self.gradient, -1, 1)
-            self.weights -= learningRate*self.gradient
+            self.weights -= learningRate*self.gradient + 0.0001*self.weights
 
 class ActivationReLU:
     def forward(self, inputs):

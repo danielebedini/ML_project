@@ -4,7 +4,7 @@ from loss import LossMSE
 from net import NeuralNet
 from data3 import generate_data
 # Create data
-X, y = generate_data(500)
+X, y = generate_data(1000)
 valX, valy = generate_data(100)
 
 '''
@@ -26,13 +26,12 @@ for epoch in range(1000):
     layer1.backward(layer2.delta, layer2.weights)
 '''
 
-nn = NeuralNet([LayerDense(2, 5, ActivationTanH()),
-                LayerDense(5, 16, ActivationTanH()),
-                LayerDense(16, 6, ActivationTanH()),
+nn = NeuralNet([LayerDense(2, 6, ActivationTanH()),
+                LayerDense(6, 6, ActivationTanH()),
                 LayerDense(6, 2, ActivationLinear())])
 
 #normalizziamo i cazzo di numeri per favore
-trError, valError = nn.train(X, y, ValX=valX, ValY=valy, learningRate=0.001, epochs=1000, batch_size=-1)
+trError, valError = nn.train(X, y, ValX=valX, ValY=valy, learningRate=0.002, epochs=220, batch_size=-1)
 
 import matplotlib.pyplot as plt
 plt.plot(trError, label="Training error")
@@ -50,11 +49,12 @@ new_X, new_y = generate_data(100)
 y_predicted = nn.forward(new_X)
 print("Test Loss: ", LossMSE(new_y, y_predicted))
 
-print("*************")
-print('new example: ', new_X[0])
-print('expected: ', new_y[0])
-print('real value: ', [2*(new_X[0][0]+new_X[0][1]), np.sin(new_X[0][0]-new_X[0][1])])
-print('predicted: ', nn.forward(new_X[0]))
+for i in range(10):
+    print("*************")
+    print('new example: ', new_X[i])
+    print('expected: ', new_y[i])
+    print('real value: ', [np.sin(new_X[i][0]+new_X[i][1]), np.sin(new_X[i][0]-new_X[i][1])])
+    print('predicted: ', nn.forward(new_X[i]))
 '''
 #recreate the network with tensorflow
 import tensorflow as tf
