@@ -14,9 +14,9 @@ class NeuralNet:
         return X
 
     def backward(self, X, y_true, learningRate):
-        
+        #TODO: fix for online case probably the error is in the computation of diff
         y = self.forward(X)
-        diff = -np.subtract(y_true, y)# TODO: check this
+        diff = -np.subtract(y_true, y)
         for i in range(len(self.layers)):
             back_index= len(self.layers)-1-i
             if i == 0: # output layer
