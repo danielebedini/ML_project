@@ -1,6 +1,6 @@
 
 from layers import *
-from loss import LossMSE
+from metrics import LossMSE
 from net import NeuralNet
 from data.data3 import generate_data
 # Create data
