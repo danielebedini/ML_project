@@ -2,7 +2,7 @@
 from layers import *
 from loss import LossMSE
 from net import NeuralNet
-from data3 import generate_data
+from data.data3 import generate_data
 # Create data
 X, y = generate_data(1000)
 valX, valy = generate_data(100)
