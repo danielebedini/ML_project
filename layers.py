@@ -52,6 +52,10 @@ class LayerDense:
             self.gradient = np.clip(self.gradient, -1, 1)
             self.weights -= learningRate*self.gradient + 0.0001*self.weights
 
+
+# ------------- Activation functions -------------
+
+
 class ActivationReLU:
     def forward(self, inputs):
         self.output = np.maximum(0, inputs)
@@ -85,4 +89,37 @@ class ActivationTanH:
     
     def derivative(self, inputs):
         self.dinputs = 1 - self.output**2
+        return self.dinputs
+    
+class ActivationSigmoid: #TODO: check this
+    def forward(self, inputs):
+        self.output = 1/(1+np.exp(-inputs))
+        return self.output
+    
+    def derivative(self, inputs):
+        self.dinputs = self.output * (1-self.output)
+        return self.dinputs
+    
+class ActivationSoftmax: #TODO: check this
+    def forward(self, inputs):
+        exp_values = np.exp(inputs - np.max(inputs, axis=1, keepdims=True))
+        probabilities = exp_values / np.sum(exp_values, axis=1, keepdims=True)
+        self.output = probabilities
+        return self.output
+    
+    def derivative(self, inputs):
+        self.dinputs = np.ones_like(inputs)
+        return self.dinputs
+
+class ActivationLeakyReLU: #TODO: check this
+    def __init__(self, alpha=0.01):
+        self.alpha = alpha
+    
+    def forward(self, inputs):
+        self.output = np.maximum(self.alpha*inputs, inputs)
+        return self.output
+    
+    def derivative(self, inputs):
+        self.dinputs = np.ones_like(inputs)
+        self.dinputs[inputs <= 0] = self.alpha
         return self.dinputs
