@@ -25,12 +25,16 @@ class LayerDense:
         if weights_next_layer is None: # Output layer
             #compute d_activation in respect to the layer inputs
             d_activation = self.activationFunction.derivative(self.outputNotActivated)
+            #if second shape is 1, then we have a single output
+            if d_activation.shape[1] == 1: d_activation = np.reshape(d_activation, d_activation.shape[0])
             #compute delta = d_error * d_activation
             self.delta = d_next_layer * d_activation
             # calculate gradient
             self.gradient = np.dot(self.output_previous_layer.T, self.delta)
             # calculate new weights
             self.gradient = np.clip(self.gradient, -1, 1)
+            #reshape gradient if needed e.g from (3,) to (3,1)
+            if self.weights.shape[1] == 1: self.gradient = self.gradient.reshape(self.weights.shape)
             #TODO: make the lambda of regularization a parameter of train
             self.weights -= learningRate*self.gradient + 0.0001*self.weights
 
@@ -45,6 +49,8 @@ class LayerDense:
         '''
         if weights_next_layer is not None: # Hidden layer
             d_activation = self.activationFunction.derivative(self.outputNotActivated)
+            #if next layer has a single output, then we have to reshape d_next_layer
+            if len(d_next_layer.shape) == 1: d_next_layer = d_next_layer.reshape(d_next_layer.shape[0], 1)
             self.d_error = np.dot(d_next_layer, weights_next_layer.T)
             self.delta = self.d_error * d_activation
             self.gradient = np.dot(self.output_previous_layer.T, self.delta)
