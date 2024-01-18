@@ -5,6 +5,7 @@ class LayerDense:
     def __init__(self, nInputs, nNeurons, activationFunction):
         self.weights = 0.10 * np.random.randn(nInputs, nNeurons)
         self.activationFunction = activationFunction
+        self.bias = np.zeros((1, nNeurons))
 
     def reset(self):
         self.weights = 0.10 * np.random.randn(self.weights.shape[0], self.weights.shape[1])
