@@ -15,7 +15,7 @@ class LayerDense:
         self.outputActivated  = self.activationFunction.forward(self.outputNotActivated)
         return self.outputActivated
     
-    def backward(self, d_next_layer, learningRate = 0.001, weights_next_layer = None):
+    def backward(self, d_next_layer, learningRate = 0.001, weights_next_layer = None, lambdaRegularization:float = 0):
         '''
         Output layer:
             - compute d_error (given by input d_next_layer)
@@ -39,7 +39,7 @@ class LayerDense:
             #reshape gradient if needed e.g from (3,) to (3,1)
             if self.weights.shape[1] == 1: self.gradient = self.gradient.reshape(self.weights.shape)
             #TODO: make the lambda of regularization a parameter of train
-            self.weights -= learningRate*self.gradient + 0.0001*self.weights
+            self.weights -= learningRate*self.gradient + lambdaRegularization*self.weights
 
         '''
         Hidden layer:
@@ -59,7 +59,7 @@ class LayerDense:
             self.gradient = np.dot(self.output_previous_layer.T, self.delta)
             #clip gradient
             self.gradient = np.clip(self.gradient, -1, 1)
-            self.weights -= learningRate*self.gradient + 0.0001*self.weights
+            self.weights -= learningRate*self.gradient + lambdaRegularization*self.weights
 
 
 # ------------- Activation functions -------------

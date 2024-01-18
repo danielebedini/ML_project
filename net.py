@@ -17,7 +17,7 @@ class NeuralNet:
             X = layer.forward(X)
         return X
 
-    def backward(self, X:np.ndarray, y_true:np.ndarray, learningRate:float):
+    def backward(self, X:np.ndarray, y_true:np.ndarray, learningRate:float, lambdaRegularization:float = 0):
         '''
         X: input
         y_true: expected output
@@ -32,16 +32,16 @@ class NeuralNet:
         for i in range(len(self.layers)):
             back_index= len(self.layers)-1-i
             if i == 0: # output layer
-                self.layers[back_index].backward(diff, learningRate)
+                self.layers[back_index].backward(diff, learningRate, None, lambdaRegularization)
             else: # hidden layers
-                self.layers[back_index].backward(self.layers[back_index+1].delta, learningRate, self.layers[back_index+1].weights)
+                self.layers[back_index].backward(self.layers[back_index+1].delta, learningRate, self.layers[back_index+1].weights, lambdaRegularization)
 
-    def train(self, X, y, ValX = None, ValY = None, learningRate = 0.001, epochs = 200, batch_size=1) -> (list, list):
+    def train(self, X, y, ValX = None, ValY = None, learningRate = 0.001, epochs = 200, batch_size=1, lambdaRegularization:float = 0) -> (list, list):
 
         if batch_size == 1: # One sample at a time
             for epoch in range(epochs):
                 for i in range(len(X)):
-                    self.backward(X[i], y[i], learningRate)
+                    self.backward(X[i], y[i], learningRate, lambdaRegularization)
                 y_predicted = self.forward(X)
                 loss = LossMSE(y, y_predicted)
                 print("Epoch: ", epoch, "Loss: ", loss)
@@ -59,7 +59,7 @@ class NeuralNet:
                 validationErrors.append(loss)
             print("Initial Loss: ", loss)
             for epoch in range(epochs):
-                self.backward(X, y, learningRate)
+                self.backward(X, y, learningRate, lambdaRegularization)
                 if ValX is not None:
                     #val loss
                     y_predicted = self.forward(ValX)
@@ -88,8 +88,13 @@ class NeuralNet:
                 validationErrors.append(loss)
             print("Initial Loss: ", loss)
             for epoch in range(epochs):
+                #shuffle data
+                p = np.random.permutation(len(X))
+                X = X[p]
+                y = y[p]
                 for i in range(0, len(X), batch_size):
-                    self.backward(X[i:i+batch_size], y[i:i+batch_size], learningRate)
+                    if i+batch_size < len(X):
+                        self.backward(X[i:i+batch_size], y[i:i+batch_size], learningRate, lambdaRegularization)
                 if ValX is not None:
                     #val loss
                     y_predicted = self.forward(ValX)
