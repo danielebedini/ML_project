@@ -27,7 +27,7 @@ def readMonkData(filename:str) -> (np.ndarray, np.ndarray):
     output = []
     with open(filename, "r") as file:
         for line in file:
-            values = list(map(int, line.split('data')[0].strip().split()))
+            values = list(map(int, line.strip().split()[0:-1]))
             input.append(values[1:])
             output.append(values[0])
     return np.array(input), np.array(output)

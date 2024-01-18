@@ -16,22 +16,25 @@ X = feature_one_hot_encoding(X, [3,3,2,3,4,2])
 
 #split validation set giving 30% of the data to validation
 totData = X.shape[0]
-trainData = int(totData * 0.99)
+trainData = int(totData * 0.8)
+ValX = X[trainData:]
+ValY = y[trainData:]
+X = X[:trainData]
+y = y[:trainData]
 print(X.shape)
 print(y.shape)
 
 monkModel = NeuralNet([LayerDense(17, 4, ActivationTanH()),
                           LayerDense(4, 1, ActivationTanH())])
 
-trError, valError = monkModel.train(X, y, learningRate=0.004, epochs=2500, batch_size=-1)
-#[5, 2, 1, 1, 3, 2] -> [[0,0,0,0,1], [0,1,0], [1,0], [1,0], [0,0,1], [0,1]]
+trError, valError = monkModel.train(X, y, ValX, ValY, learningRate=0.001, epochs=250, batch_size=-1)
 
 #compute accuracy
-from metrics import accuracy_classifier as accuracy
+from metrics import accuracy_classifier_single_output as accuracy
 y_predicted = monkModel.forward(X)
 print("training Accuracy: ", accuracy(y, y_predicted))
-#y_predicted = monkModel.forward(ValX)
-#print("validation Accuracy: ", accuracy(ValY, y_predicted))
+y_predicted = monkModel.forward(ValX)
+print("validation Accuracy: ", accuracy(ValY, y_predicted))
 
 
 import matplotlib.pyplot as plt
@@ -51,11 +54,3 @@ for i in range(len(new_X)):
     print('new example: ', new_X[i])
     print('expected: ', new_y[i])
     print('predicted: ', y_predicted[i])
-
-# count positive examples in the training set
-count = 0
-for i in range(len(y)):
-    if y[i][0] == 1:
-        count += 1
-print("positive examples in the training set: ", count)
-print("negative examples in the training set: ", len(y) - count)
