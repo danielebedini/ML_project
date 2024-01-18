@@ -1,7 +1,7 @@
 import numpy as np
 from layers import ActivationLinear, ActivationReLU, ActivationTanH, LayerDense
 from net import NeuralNet
-from utils import feature_one_hot_encoding, readMonkData, standard_one_hot_encoding
+from utilities import feature_one_hot_encoding, readMonkData, standard_one_hot_encoding
 
 # Path: monk1.py
 # Read the training data

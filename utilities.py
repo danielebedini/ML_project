@@ -58,3 +58,10 @@ def standard_one_hot_encoding(y:np.ndarray, classes:int) -> np.ndarray:
     for i in range(y.shape[0]): #for each sample
         one_hot[i, y[i] - 1] = 1
     return one_hot
+
+def plot_data_error(trError:np.ndarray, valError:np.ndarray):
+    import matplotlib.pyplot as plt
+    plt.plot(trError, label="Training error")
+    plt.plot(valError, label="Validation error")
+    plt.legend()
+    plt.show()

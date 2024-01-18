@@ -3,6 +3,7 @@ from layers import *
 from metrics import LossMSE
 from net import NeuralNet
 from data.data3 import generate_data
+from utilities import plot_data_error
 # Create data
 X, y = generate_data(1000)
 valX, valy = generate_data(100)
@@ -30,14 +31,10 @@ nn = NeuralNet([LayerDense(2, 6, ActivationTanH()),
                 LayerDense(6, 6, ActivationTanH()),
                 LayerDense(6, 2, ActivationLinear())])
 
-#normalizziamo i cazzo di numeri per favore
-trError, valError = nn.train(X, y, ValX=valX, ValY=valy, learningRate=0.002, epochs=220, batch_size=-1)
+trError, valError = nn.train(X, y, ValX=valX, ValY=valy, learningRate=0.002, epochs=15, batch_size=50)
 
-import matplotlib.pyplot as plt
-plt.plot(trError, label="Training error")
-plt.plot(valError, label="Validation error")
-plt.legend()
-plt.show()
+# plot training and validation error
+plot_data_error(trError, valError)
 
 #compute model error
 y_predicted = nn.forward(X)

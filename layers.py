@@ -6,6 +6,9 @@ class LayerDense:
         self.weights = 0.10 * np.random.randn(nInputs, nNeurons)
         self.activationFunction = activationFunction
 
+    def reset(self):
+        self.weights = 0.10 * np.random.randn(self.weights.shape[0], self.weights.shape[1])
+
     def forward(self, inputs):
         self.output_previous_layer = inputs
         self.outputNotActivated = np.dot(inputs, self.weights)

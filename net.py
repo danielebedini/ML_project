@@ -1,12 +1,16 @@
 import numpy as np
 from layers import *
 from metrics import LossMSE
-from utils import printProgressBar
+from utilities import printProgressBar
 
 class NeuralNet:
 
     def __init__(self, layers):
         self.layers = layers # a list of layers
+    
+    def reset(self):
+        for layer in self.layers:
+            layer.reset()
 
     def forward(self, X) -> np.ndarray:
         for layer in self.layers:
@@ -72,6 +76,32 @@ class NeuralNet:
             printProgressBar(epochs, epochs, prefix = 'Progress:', suffix = f'Loss : {loss}', length = 50)
             return trainingErrors, validationErrors
 
-
-
-
+        else: # Mini-batch
+            trainingErrors = []
+            validationErrors = []
+            y_predicted = self.forward(X)
+            loss = LossMSE(y, y_predicted)
+            trainingErrors.append(loss)
+            if ValX is not None:
+                y_predicted = self.forward(ValX)
+                loss = LossMSE(ValY, y_predicted)
+                validationErrors.append(loss)
+            print("Initial Loss: ", loss)
+            for epoch in range(epochs):
+                for i in range(0, len(X), batch_size):
+                    self.backward(X[i:i+batch_size], y[i:i+batch_size], learningRate)
+                if ValX is not None:
+                    #val loss
+                    y_predicted = self.forward(ValX)
+                    loss = LossMSE(ValY, y_predicted)
+                    validationErrors.append(loss)
+                #tr loss
+                y_predicted = self.forward(X)
+                loss = LossMSE(y, y_predicted)
+                trainingErrors.append(loss)
+                if epoch % 10 == 0:
+                    printProgressBar(epoch, epochs, prefix = 'Progress:', suffix = f'Loss : {loss}', length = 50)
+            y_predicted = self.forward(X)
+            loss = LossMSE(y, y_predicted)
+            printProgressBar(epochs, epochs, prefix = 'Progress:', suffix = f'Loss : {loss}', length = 50)
+            return trainingErrors, validationErrors
