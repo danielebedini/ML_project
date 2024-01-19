@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import nnfs
+import tests.nnfs as nnfs
 from nnfs.datasets import vertical_data
 
 nnfs.init()

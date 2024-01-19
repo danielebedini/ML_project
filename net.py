@@ -38,53 +38,31 @@ class NeuralNet:
 
     def train(self, X, y, ValX = None, ValY = None, learningRate = 0.001, epochs = 200, batch_size=1, lambdaRegularization:float = 0, momentum:float = 0) -> (list, list):
 
-        if batch_size == 1: # One sample at a time
-            for epoch in range(epochs):
-                for i in range(len(X)):
-                    self.backward(X[i], y[i], learningRate, lambdaRegularization, momentum)
-                y_predicted = self.forward(X)
-                loss = LossMSE(y, y_predicted)
-                print("Epoch: ", epoch, "Loss: ", loss)
-            return [], []
+        trainingErrors = []
+        validationErrors = []
+        trainingErrors.append(self.get_errors(X, y, LossMSE))
 
-        elif batch_size==-1: # All samples at once (batch)
-            trainingErrors = []
-            validationErrors = []
-            y_predicted = self.forward(X)
-            loss = LossMSE(y, y_predicted)
-            trainingErrors.append(loss)
-            if ValX is not None:
-                y_predicted = self.forward(ValX)
-                loss = LossMSE(ValY, y_predicted)
-                validationErrors.append(loss)
-            print("Initial Loss: ", loss)
+        if ValX is not None:
+            validationErrors.append(self.get_errors(ValX, ValY, LossMSE))
+
+        print("Initial loss: ", trainingErrors[0])
+        
+        if batch_size==-1: # All samples at once (batch)
+
             for epoch in range(epochs):
                 self.backward(X, y, learningRate, lambdaRegularization, momentum)
                 if ValX is not None:
                     #val loss
-                    y_predicted = self.forward(ValX)
-                    loss = LossMSE(ValY, y_predicted)
-                    validationErrors.append(loss)
+                    validationErrors.append(self.get_errors(ValX, ValY, LossMSE))
                 #tr loss
-                y_predicted = self.forward(X)
-                loss = LossMSE(y, y_predicted)
-                trainingErrors.append(loss)
+                trainingErrors.append(self.get_errors(X, y, LossMSE))
                 if epoch % 10 == 0:
-                    printProgressBar(epoch, epochs, prefix = 'Progress:', suffix = f'Loss : {loss}', length = 50)
-            printProgressBar(epochs, epochs, prefix = 'Progress:', suffix = f'Loss : {loss}', length = 50)
+                    printProgressBar(epoch, epochs, prefix = 'Progress:', suffix = f'Loss : {trainingErrors[epoch+1]}', length = 50)
+            printProgressBar(epochs, epochs, prefix = 'Progress:', suffix = f'Loss : {trainingErrors[epochs]}', length = 50)
             return trainingErrors, validationErrors
 
-        else: # Mini-batch
-            trainingErrors = []
-            validationErrors = []
-            y_predicted = self.forward(X)
-            loss = LossMSE(y, y_predicted)
-            trainingErrors.append(loss)
-            if ValX is not None:
-                y_predicted = self.forward(ValX)
-                loss = LossMSE(ValY, y_predicted)
-                validationErrors.append(loss)
-            print("Initial Loss: ", loss)
+        else: # Mini-batch, we can also do online training by setting batch_size=1
+
             for epoch in range(epochs):
                 #shuffle data
                 p = np.random.permutation(len(X))
@@ -97,16 +75,16 @@ class NeuralNet:
                         self.backward(X[i:], y[i:], learningRate, lambdaRegularization)
                 if ValX is not None:
                     #val loss
-                    y_predicted = self.forward(ValX)
-                    loss = LossMSE(ValY, y_predicted)
-                    validationErrors.append(loss)
+                    validationErrors.append(self.get_errors(ValX, ValY, LossMSE))
                 #tr loss
-                y_predicted = self.forward(X)
-                loss = LossMSE(y, y_predicted)
-                trainingErrors.append(loss)
+                trainingErrors.append(self.get_errors(X, y, LossMSE))
                 if epoch % 10 == 0:
-                    printProgressBar(epoch, epochs, prefix = 'Progress:', suffix = f'Loss : {loss}', length = 50)
-            y_predicted = self.forward(X)
-            loss = LossMSE(y, y_predicted)
-            printProgressBar(epochs, epochs, prefix = 'Progress:', suffix = f'Loss : {loss}', length = 50)
+                    printProgressBar(epoch, epochs, prefix = 'Progress:', suffix = f'Loss : {trainingErrors[epoch+1]}', length = 50)
+            
+            printProgressBar(epochs, epochs, prefix = 'Progress:', suffix = f'Loss : {trainingErrors[epochs]}', length = 50)
             return trainingErrors, validationErrors
+    
+    def get_errors(self, X: np.array, y:np.array, loss:callable):
+        y_predicted = self.forward(X)
+        loss = loss(y, y_predicted)
+        return loss
