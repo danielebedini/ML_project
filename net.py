@@ -17,7 +17,7 @@ class NeuralNet:
             X = layer.forward(X)
         return X
 
-    def backward(self, X:np.ndarray, y_true:np.ndarray, learningRate:float, lambdaRegularization:float = 0):
+    def backward(self, X:np.ndarray, y_true:np.ndarray, learningRate:float, lambdaRegularization:float = 0, momentum:float = 0):
         '''
         X: input
         y_true: expected output
@@ -36,18 +36,18 @@ class NeuralNet:
             else: # hidden layers
                 self.layers[back_index].backward(self.layers[back_index+1].delta, learningRate, self.layers[back_index+1].weights, lambdaRegularization)
 
-    def train(self, X, y, ValX = None, ValY = None, learningRate = 0.001, epochs = 200, batch_size=1, lambdaRegularization:float = 0) -> (list, list):
+    def train(self, X, y, ValX = None, ValY = None, learningRate = 0.001, epochs = 200, batch_size=1, lambdaRegularization:float = 0, momentum:float = 0) -> (list, list):
 
         if batch_size == 1: # One sample at a time
             for epoch in range(epochs):
                 for i in range(len(X)):
-                    self.backward(X[i], y[i], learningRate, lambdaRegularization)
+                    self.backward(X[i], y[i], learningRate, lambdaRegularization, momentum)
                 y_predicted = self.forward(X)
                 loss = LossMSE(y, y_predicted)
                 print("Epoch: ", epoch, "Loss: ", loss)
             return [], []
 
-        elif batch_size==-1: # All samples at once # TODO: check this
+        elif batch_size==-1: # All samples at once (batch)
             trainingErrors = []
             validationErrors = []
             y_predicted = self.forward(X)
@@ -59,7 +59,7 @@ class NeuralNet:
                 validationErrors.append(loss)
             print("Initial Loss: ", loss)
             for epoch in range(epochs):
-                self.backward(X, y, learningRate, lambdaRegularization)
+                self.backward(X, y, learningRate, lambdaRegularization, momentum)
                 if ValX is not None:
                     #val loss
                     y_predicted = self.forward(ValX)
@@ -71,8 +71,6 @@ class NeuralNet:
                 trainingErrors.append(loss)
                 if epoch % 10 == 0:
                     printProgressBar(epoch, epochs, prefix = 'Progress:', suffix = f'Loss : {loss}', length = 50)
-            y_predicted = self.forward(X)
-            loss = LossMSE(y, y_predicted)
             printProgressBar(epochs, epochs, prefix = 'Progress:', suffix = f'Loss : {loss}', length = 50)
             return trainingErrors, validationErrors
 
@@ -94,7 +92,9 @@ class NeuralNet:
                 y = y[p]
                 for i in range(0, len(X), batch_size):
                     if i+batch_size < len(X):
-                        self.backward(X[i:i+batch_size], y[i:i+batch_size], learningRate, lambdaRegularization)
+                        self.backward(X[i:i+batch_size], y[i:i+batch_size], learningRate, lambdaRegularization, momentum)
+                    else:
+                        self.backward(X[i:], y[i:], learningRate, lambdaRegularization)
                 if ValX is not None:
                     #val loss
                     y_predicted = self.forward(ValX)

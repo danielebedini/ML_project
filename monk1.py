@@ -1,5 +1,5 @@
 import numpy as np
-from layers import ActivationLinear, ActivationReLU, ActivationTanH, LayerDense
+from layers import *
 from net import NeuralNet
 from utilities import feature_one_hot_encoding, readMonkData, standard_one_hot_encoding
 
@@ -12,7 +12,7 @@ print(y.shape)
 
 #one hot encode input
 X = feature_one_hot_encoding(X, [3,3,2,3,4,2])
-y = standard_one_hot_encoding(y, 2)
+#y = standard_one_hot_encoding(y, 2)
 
 #split validation set giving 30% of the data to validation
 '''totData = X.shape[0]
@@ -24,14 +24,15 @@ y = y[:trainData]
 print(X.shape)
 print(y.shape)'''
 
-monkModel = NeuralNet([LayerDense(17, 10, ActivationTanH()),
-                        LayerDense(10, 2, ActivationLinear())])
+monkModel = NeuralNet([LayerDense(17, 10, ActivationLeakyReLU()),
+                        LayerDense(10, 10, ActivationLeakyReLU()),
+                        LayerDense(10, 1, ActivationLeakyReLU())])
 
 #trError, valError = monkModel.train(X, y, ValX, ValY, learningRate=0.002, epochs=100, batch_size=30)
-trError, valError = monkModel.train(X, y, learningRate=0.003, epochs=300, batch_size=30, lambdaRegularization=0.0001)
+trError, valError = monkModel.train(X, y, learningRate=0.001, epochs=200, batch_size=30, lambdaRegularization=0, momentum=0.99)
 
 #compute accuracy
-from metrics import LossMSE, accuracy_classifier_multiple_output as accuracy
+from metrics import LossMSE, accuracy_classifier_single_output as accuracy
 y_predicted = monkModel.forward(X)
 print("training Accuracy: ", accuracy(y, y_predicted))
 #y_predicted = monkModel.forward(ValX)
@@ -63,7 +64,7 @@ for i in range(len(new_X)):
     print('expected: ', new_y[i])
     print('predicted: ', y_predicted[i])'''
 
-positive = 0
+'''positive = 0
 negative = 0
 for i in range(len(X)):
     if np.argmax(y[i]) == 1:
@@ -71,5 +72,31 @@ for i in range(len(X)):
     else:
         negative += 1
 
-#print("positive: ", positive)
-#print("negative: ", negative)
+print("positive: ", positive)
+print("negative: ", negative)'''
+
+###############################################
+################# tensorflow ##################
+###############################################
+
+import tensorflow as tf
+from tensorflow import keras
+from keras.models import Sequential
+from keras.layers import Dense  
+
+model = Sequential()
+model.add(Dense(10, input_dim=17, activation='tanh'))
+model.add(Dense(10, activation='tanh'))
+model.add(Dense(1, activation='tanh'))
+model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
+
+#accuracy before training
+y_predicted = model.predict(X)
+print("Initial Accuracy: ", accuracy(y, y_predicted))
+
+hystory = model.fit(X, y, epochs=100, batch_size=30, verbose=0)
+
+#accuracy after training
+y_predicted = model.predict(X)
+print("training Accuracy: ", accuracy(y, y_predicted))
+print("training Loss: ", LossMSE(y, y_predicted))

@@ -3,20 +3,25 @@ import numpy as np
 class LayerDense:
 
     def __init__(self, nInputs, nNeurons, activationFunction):
-        self.weights = 0.10 * np.random.randn(nInputs, nNeurons)
+        self.weights = 0.05 * np.random.randn(nInputs, nNeurons)
         self.activationFunction = activationFunction
-        self.bias = np.zeros((1, nNeurons))
+        self.pastGradient = 0
+        self.bias = 0.05 * np.random.randn(1, nNeurons)
+
 
     def reset(self):
-        self.weights = 0.10 * np.random.randn(self.weights.shape[0], self.weights.shape[1])
+        self.weights = 0.05 * np.random.randn(self.weights.shape[0], self.weights.shape[1])
+        self.bias = 0.05 * np.random.randn(self.bias.shape[0], self.bias.shape[1])
+        self.pastGradient = 0
+
 
     def forward(self, inputs):
         self.output_previous_layer = inputs
-        self.outputNotActivated = np.dot(inputs, self.weights)
+        self.outputNotActivated = np.dot(inputs, self.weights) + self.bias
         self.outputActivated  = self.activationFunction.forward(self.outputNotActivated)
         return self.outputActivated
     
-    def backward(self, d_next_layer, learningRate = 0.001, weights_next_layer = None, lambdaRegularization:float = 0):
+    def backward(self, d_next_layer, learningRate = 0.001, weights_next_layer = None, lambdaRegularization:float = 0, momentum:float = 0.9):
         '''
         Output layer:
             - compute d_error (given by input d_next_layer)
@@ -27,20 +32,20 @@ class LayerDense:
             - gradient descent: calculate the new weights
         '''
         if weights_next_layer is None: # Output layer
-            #compute d_activation in respect to the layer inputs
             d_activation = self.activationFunction.derivative(self.outputNotActivated)
             #if second shape is 1, then we have a single output
             if d_activation.shape[1] == 1: d_activation = np.reshape(d_activation, d_activation.shape[0])
-            #compute delta = d_error * d_activation
             self.delta = d_next_layer * d_activation
             # calculate gradient
             self.gradient = np.dot(self.output_previous_layer.T, self.delta)
-            # calculate new weights
-            self.gradient = np.clip(self.gradient, -1, 1)
+            self.gradient = np.clip(self.gradient, -0.5, 0.5)
             #reshape gradient if needed e.g from (3,) to (3,1)
             if self.weights.shape[1] == 1: self.gradient = self.gradient.reshape(self.weights.shape)
-            #TODO: make the lambda of regularization a parameter of train
-            self.weights -= learningRate*self.gradient + lambdaRegularization*self.weights
+            # newWeights -= multiply by learning rate  +          regularization           +       momentum
+            self.weights -= learningRate*self.gradient + lambdaRegularization*self.weights + self.pastGradient*momentum
+            self.pastGradient = self.gradient*learningRate                      # if added regualrized with own term
+            # new bias = gradient descent*learning rate                         #+      regularization for bias
+            self.bias -= np.sum(learningRate*self.delta, axis=0, keepdims=True) #+ lambdaRegularization*self.bias
 
         '''
         Hidden layer:
@@ -58,9 +63,14 @@ class LayerDense:
             self.d_error = np.dot(d_next_layer, weights_next_layer.T)
             self.delta = self.d_error * d_activation
             self.gradient = np.dot(self.output_previous_layer.T, self.delta)
-            #clip gradient
+            #use only one of the following 2 lines (second is more appropriate for deep networks)
             self.gradient = np.clip(self.gradient, -1, 1)
-            self.weights -= learningRate*self.gradient + lambdaRegularization*self.weights
+            #self.gradient = np.sign(self.gradient)
+            # newWeights -= multiply by learning rate  +          regularization           +       momentum
+            self.weights -= learningRate*self.gradient + lambdaRegularization*self.weights + self.pastGradient*momentum
+            self.pastGradient = self.gradient*learningRate                      # if added regualrized with own term
+            # new bias = gradient descent*learning rate                         #+      regularization for bias
+            self.bias -= np.sum(learningRate*self.delta, axis=0, keepdims=True) #+ lambdaRegularization*self.bias
 
 
 # ------------- Activation functions -------------
@@ -121,7 +131,7 @@ class ActivationSoftmax: #TODO: check this
         self.dinputs = np.ones_like(inputs)
         return self.dinputs
 
-class ActivationLeakyReLU: #TODO: check this
+class ActivationLeakyReLU:
     def __init__(self, alpha=0.01):
         self.alpha = alpha
     
