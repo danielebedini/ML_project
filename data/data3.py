@@ -13,8 +13,8 @@ def generate_data(n_inputs):
         X.append([x1, x2])
         # add noise
         #y1 = 1*(x1+x2) + np.random.normal(-0.05, 0.05)
-        y2 = np.sin(x1+x2) + np.random.normal(-0.05, 0.05)
-        y3 = np.sin(x1-x2) + np.random.normal(-0.05, 0.05)
+        y2 = np.sin(x1+x2) + np.random.normal(-0.1, 0.1)
+        y3 = np.sin(x1-x2) + np.random.normal(-0.1, 0.1)
         y.append([y2, y3])
 
     X = np.array(X)

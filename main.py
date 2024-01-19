@@ -31,7 +31,7 @@ nn = NeuralNet([LayerDense(2, 6, ActivationTanH()),
                 LayerDense(6, 6, ActivationTanH()),
                 LayerDense(6, 2, ActivationLinear())])
 
-trError, valError = nn.train(X, y, ValX=valX, ValY=valy, learningRate=0.002, epochs=15, batch_size=50)
+trError, valError = nn.train(X, y, ValX=valX, ValY=valy, learningRate=0.02, epochs=30, batch_size=50, lambdaRegularization=0.001, patience=-1)
 
 # plot training and validation error
 plot_data_error(trError, valError)
@@ -46,12 +46,14 @@ new_X, new_y = generate_data(100)
 y_predicted = nn.forward(new_X)
 print("Test Loss: ", LossMSE(new_y, y_predicted))
 
+'''
 for i in range(10):
     print("*************")
     print('new example: ', new_X[i])
     print('expected: ', new_y[i])
     print('real value: ', [np.sin(new_X[i][0]+new_X[i][1]), np.sin(new_X[i][0]-new_X[i][1])])
     print('predicted: ', nn.forward(new_X[i]))
+'''
 '''
 #recreate the network with tensorflow
 import tensorflow as tf
