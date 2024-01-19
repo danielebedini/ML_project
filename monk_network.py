@@ -3,9 +3,10 @@ from layers import *
 from net import NeuralNet
 from utilities import feature_one_hot_encoding, readMonkData, standard_one_hot_encoding
 
+monk_num = 3
 # Path: monk1.py
 # Read the training data
-X, y = readMonkData("data/monk/monks-1.train")
+X, y = readMonkData(f"data/monk/monks-{monk_num}.train")
 
 print(X.shape)
 print(y.shape)
@@ -24,11 +25,10 @@ y = y[:trainData]
 print(X.shape)
 print(y.shape)'''
 
-monkModel = NeuralNet([LayerDense(17, 10, ActivationLeakyReLU()),
-                        LayerDense(10, 10, ActivationLeakyReLU()),
-                        LayerDense(10, 1, ActivationLeakyReLU())])
+monkModel = NeuralNet([LayerDense(17, 10, ActivationTanH()),
+                        LayerDense(10, 10, ActivationTanH()),
+                        LayerDense(10, 1, ActivationTanH())])
 
-#trError, valError = monkModel.train(X, y, ValX, ValY, learningRate=0.002, epochs=100, batch_size=30)
 trError, valError = monkModel.train(X, y, learningRate=0.001, epochs=200, batch_size=30, lambdaRegularization=0, momentum=0.99)
 
 #compute accuracy
@@ -39,12 +39,12 @@ print("training Accuracy: ", accuracy(y, y_predicted))
 #print("validation Accuracy: ", accuracy(ValY, y_predicted))
 
 #check test error
-'''X, y = readMonkData("data/monk/monks-1.test")
+X, y = readMonkData(f"data/monk/monks-{monk_num}.test")
 X = feature_one_hot_encoding(X, [3,3,2,3,4,2])
-y = standard_one_hot_encoding(y, 2)
+#y = standard_one_hot_encoding(y, 2)
 y_predicted = monkModel.forward(X)
-print("Test Accuracy: ", accuracy(y, y_predicted))
-print("Test Loss: ", LossMSE(y, y_predicted))   '''
+print("Test Accuracy our baby: ", accuracy(y, y_predicted))
+print("Test Loss: ", LossMSE(y, y_predicted))
 
 import matplotlib.pyplot as plt
 plt.plot(trError, label="Training error")
@@ -83,6 +83,9 @@ import tensorflow as tf
 from tensorflow import keras
 from keras.models import Sequential
 from keras.layers import Dense  
+from keras.optimizers import Adam
+
+optimizerAdam = Adam(learning_rate=0.001, beta_1=0.99, beta_2=0, amsgrad=False)
 
 model = Sequential()
 model.add(Dense(10, input_dim=17, activation='tanh'))
@@ -90,6 +93,8 @@ model.add(Dense(10, activation='tanh'))
 model.add(Dense(1, activation='tanh'))
 model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
 
+X, y = readMonkData(f"data/monk/monks-{monk_num}.train")
+X = feature_one_hot_encoding(X, [3,3,2,3,4,2])
 #accuracy before training
 y_predicted = model.predict(X)
 print("Initial Accuracy: ", accuracy(y, y_predicted))
@@ -100,3 +105,11 @@ hystory = model.fit(X, y, epochs=100, batch_size=30, verbose=0)
 y_predicted = model.predict(X)
 print("training Accuracy: ", accuracy(y, y_predicted))
 print("training Loss: ", LossMSE(y, y_predicted))
+
+#accuracy on test set
+X, y = readMonkData(f"data/monk/monks-{monk_num}.test")
+X = feature_one_hot_encoding(X, [3,3,2,3,4,2])
+#y = standard_one_hot_encoding(y, 2)
+y_predicted = model.predict(X)
+print("Test Accuracy tf baby: ", accuracy(y, y_predicted))
+print("Test Loss: ", LossMSE(y, y_predicted))
