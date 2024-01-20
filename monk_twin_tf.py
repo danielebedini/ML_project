@@ -7,12 +7,12 @@ from tensorflow import keras
 from keras.models import Sequential
 from keras.layers import Dense  
 from keras.optimizers import Adam
-from utilities import feature_one_hot_encoding, readMonkData
+from utilities import feature_one_hot_encoding, readMonkData, plot_data_error
 from metrics import LossMSE, accuracy_classifier_single_output as accuracy
 
 monk_num = 3
 
-optimizerAdam = Adam(learning_rate=0.001, beta_1=0.99, beta_2=0, amsgrad=False)
+optimizerAdam = Adam(learning_rate=0.05, beta_1=0.99, beta_2=0, amsgrad=False)
 
 model = Sequential()
 model.add(Dense(10, input_dim=17, activation='tanh'))
@@ -26,7 +26,9 @@ X = feature_one_hot_encoding(X, [3,3,2,3,4,2])
 y_predicted = model.predict(X)
 print("Initial Accuracy: ", accuracy(y, y_predicted))
 
-hystory = model.fit(X, y, epochs=100, batch_size=30, verbose=0)
+hystory = model.fit(X, y, epochs=60, batch_size=10, verbose=0)
+
+plot_data_error(hystory.history['loss'], hystory.history['loss'])
 
 #accuracy after training
 y_predicted = model.predict(X)

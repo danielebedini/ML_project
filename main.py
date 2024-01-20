@@ -1,4 +1,3 @@
-
 from layers import *
 from metrics import LossMSE
 from net import NeuralNet
@@ -31,7 +30,7 @@ nn = NeuralNet([LayerDense(2, 6, ActivationTanH()),
                 LayerDense(6, 6, ActivationTanH()),
                 LayerDense(6, 2, ActivationLinear())])
 
-trError, valError = nn.train(X, y, ValX=valX, ValY=valy, learningRate=0.02, epochs=30, batch_size=50, lambdaRegularization=0.001, patience=-1)
+trError, valError = nn.train(X, y, ValX=valX, ValY=valy, learningRate=0.05, epochs=10, batch_size=10, lambdaRegularization=0, patience=2, tau=40)
 
 # plot training and validation error
 plot_data_error(trError, valError)

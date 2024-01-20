@@ -36,7 +36,7 @@ class NeuralNet:
             else: # hidden layers
                 self.layers[back_index].backward(self.layers[back_index+1].delta, learningRate, self.layers[back_index+1].weights, lambdaRegularization)
 
-    def train(self, X, y, ValX = None, ValY = None, learningRate = 0.001, epochs = 200, batch_size=1, lambdaRegularization:float = 0, momentum:float = 0, patience:int = -1) -> (list, list):
+    def train(self, X, y, ValX = None, ValY = None, learningRate = 0.001, epochs = 200, batch_size=1, lambdaRegularization:float = 0, momentum:float = 0, patience:int = -1, tau:int=0) -> (list, list):
 
         trainingErrors = []
         validationErrors = []
@@ -58,7 +58,6 @@ class NeuralNet:
                 trainingErrors.append(self.get_errors(X, y, LossMSE))
                 if epoch % 10 == 0:
                     printProgressBar(epoch, epochs, prefix = 'Progress:', suffix = f'Loss : {trainingErrors[epoch+1]}', length = 50)
-                
                 # check stopping criteria
                 if self.check_stopping_criteria(validationErrors, trainingErrors, lambdaRegularization, patience):
                     print("\nEarly stopping at epoch: ", epoch)
@@ -76,9 +75,9 @@ class NeuralNet:
                 y = y[p]
                 for i in range(0, len(X), batch_size):
                     if i+batch_size < len(X):
-                        self.backward(X[i:i+batch_size], y[i:i+batch_size], learningRate, lambdaRegularization, momentum)
+                        self.backward(X[i:i+batch_size], y[i:i+batch_size], self.variable_learning_rate(epoch, learningRate, tau), lambdaRegularization, momentum)
                     else:
-                        self.backward(X[i:], y[i:], learningRate, lambdaRegularization)
+                        self.backward(X[i:], y[i:], self.variable_learning_rate(epoch, learningRate, tau), lambdaRegularization)
                 if ValX is not None:
                     #val loss
                     validationErrors.append(self.get_errors(ValX, ValY, LossMSE))
@@ -129,3 +128,20 @@ class NeuralNet:
             return True
         
         return False
+    
+    def variable_learning_rate(self, epoch:int, initial_learning_rate:float, tau:int) -> float:
+        '''
+        epoch: current epoch, which is tau in the formula
+        initial_learning_rate: initial learning rate, which is eta_0 in the formula
+
+        returns the new learning rate
+        '''
+        if tau==0:
+            return initial_learning_rate
+
+        eta_tau = 0.01*initial_learning_rate # 1% of the initial learning rate
+        if epoch < tau:
+            alpha = epoch/tau
+            return (1-alpha)*initial_learning_rate + alpha*eta_tau # variable learning rate formula
+        else:
+            return eta_tau # after a certain number of epochs, we keep the learning rate equal to eta_tau
