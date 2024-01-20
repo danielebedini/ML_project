@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from layers import *
 from metrics import LossMSE
@@ -83,8 +84,8 @@ class NeuralNet:
                     validationErrors.append(self.get_errors(ValX, ValY, LossMSE))
                 #tr loss
                 trainingErrors.append(self.get_errors(X, y, LossMSE))
-                if epoch % 10 == 0:
-                    printProgressBar(epoch, epochs, prefix = 'Progress:', suffix = f'Loss : {trainingErrors[epoch+1]}', length = 50)
+                #if epoch % 10 == 0:
+                printProgressBar(epoch, epochs, prefix = 'Progress:', suffix = f'Loss : {trainingErrors[epoch+1]}', length = 50)
 
                 # check stopping criteria
                 if self.check_stopping_criteria(validationErrors, trainingErrors, lambdaRegularization, patience):
@@ -145,3 +146,22 @@ class NeuralNet:
             return (1-alpha)*initial_learning_rate + alpha*eta_tau # variable learning rate formula
         else:
             return eta_tau # after a certain number of epochs, we keep the learning rate equal to eta_tau
+        
+    def save_weights(self, path:str):
+        '''
+        path: path where to save the weights
+        '''
+        #create folder if it does not exist
+        if not os.path.exists(path):
+            os.makedirs(path)
+        for i in range(len(self.layers)):
+            np.savetxt(path+f"_{i}", self.layers[i].weights)
+            np.savetxt(path+f"_{i}_bias", self.layers[i].bias)
+    
+    def load_weights(self, path:str):
+        '''
+        path: path where to load the weights
+        '''
+        for i in range(len(self.layers)):
+            self.layers[i].weights = np.loadtxt(path+f"_{i}")
+            self.layers[i].bias = np.loadtxt(path+f"_{i}_bias")
