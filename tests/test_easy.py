@@ -1,4 +1,9 @@
+import sys
+import os
+sys.path.append(os.path.join(sys.path[0], '..'))
+
 from layers import *
+from activations import *
 from metrics import LossMSE
 from net import NeuralNet
 from data.data3 import generate_data

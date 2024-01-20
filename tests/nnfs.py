@@ -5,6 +5,7 @@ sys.path.append(os.path.join(sys.path[0], '..'))
 from data.data import createData
 from net import NeuralNet
 from layers import *
+from activations import *
 from utilities import plot_data_error, standard_one_hot_encoding
 from metrics import LossMSE, accuracy_classifier_multiple_output as accuracy
 

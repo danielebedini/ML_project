@@ -4,6 +4,7 @@ sys.path.append(os.path.join(sys.path[0], '..'))
 
 from net import NeuralNet
 from layers import *
+from activations import *
 from metrics import LossMSE
 from keras.datasets import mnist
 from utilities import plot_data_error, standard_one_hot_encoding
@@ -64,11 +65,11 @@ y_predicted = nn.forward(new_X)
 for i in range(len(new_X)):
     print("*************")
     #show exaple in pyplot
-    plt.imshow(new_X[i].reshape(28,28), cmap='gray')
-    plt.show()
     expected = np.argmax(new_y[i]) + 1
     if expected == 10: expected = 0
     print('expected: ', expected)
     predicted = np.argmax(y_predicted[i]) + 1
     if predicted == 10: predicted = 0
     print('predicted: ', predicted)
+    plt.imshow(new_X[i].reshape(28,28), cmap='gray')
+    plt.show()

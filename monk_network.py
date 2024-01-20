@@ -1,5 +1,6 @@
 import numpy as np
 from layers import *
+from activations import *
 from net import NeuralNet
 from utilities import feature_one_hot_encoding, readMonkData, standard_one_hot_encoding
 

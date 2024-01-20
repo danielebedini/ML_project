@@ -5,6 +5,7 @@ sys.path.append(os.path.join(sys.path[0], '..'))
 from validation import Validator
 from net import NeuralNet
 from layers import *
+from activations import *
 from metrics import *
 #from data.data3 import generate_data
 from utilities import readMonkData, feature_one_hot_encoding, standard_one_hot_encoding, plot_data_error
@@ -12,7 +13,7 @@ from utilities import readMonkData, feature_one_hot_encoding, standard_one_hot_e
 # Create data
 #X, y = generate_data(1000)
 
-X, y = readMonkData("../data/monk/monks-1.train")
+X, y = readMonkData("data/monk/monks-1.train")
 X = feature_one_hot_encoding(X, [3,3,2,3,4,2])
 y = standard_one_hot_encoding(y, 2)
 

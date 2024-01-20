@@ -4,6 +4,7 @@ sys.path.append(os.path.join(sys.path[0], '..'))
 
 from net import NeuralNet
 from layers import *
+from activations import *
 from metrics import LossMSE
 from keras.datasets import mnist
 from utilities import plot_data_error, standard_one_hot_encoding
