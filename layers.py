@@ -120,7 +120,7 @@ class ActivationSigmoid: #TODO: check this
         self.dinputs = self.output * (1-self.output)
         return self.dinputs
     
-class ActivationSoftmax: #TODO: check this
+class ActivationSoftmax:
     def forward(self, inputs):
         exp_values = np.exp(inputs - np.max(inputs, axis=1, keepdims=True))
         probabilities = exp_values / np.sum(exp_values, axis=1, keepdims=True)
