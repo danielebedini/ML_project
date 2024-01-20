@@ -1,8 +1,9 @@
 import numpy as np
+from activations import ActivationFunction
 
 class LayerDense:
 
-    def __init__(self, nInputs, nNeurons, activationFunction):
+    def __init__(self, nInputs, nNeurons, activationFunction:ActivationFunction):
         self.weights = 0.05 * np.random.randn(nInputs, nNeurons)
         self.activationFunction = activationFunction
         self.pastGradient = 0
@@ -72,74 +73,3 @@ class LayerDense:
             # new bias = gradient descent*learning rate                         #+      regularization for bias
             self.bias -= np.sum(learningRate*self.delta, axis=0, keepdims=True) #+ lambdaRegularization*self.bias
 
-
-# ------------- Activation functions -------------
-
-
-class ActivationReLU:
-    def forward(self, inputs):
-        self.output = np.maximum(0, inputs)
-        return self.output
-
-    def derivative(self, inputs):
-        '''
-        this function calculates  f'(w.T*x)
-        '''
-        self.dinputs = np.copy(inputs)
-        self.dinputs[self.dinputs <= 0] = 0
-        self.dinputs[self.dinputs > 0] = 1
-        return self.dinputs
-    
-class ActivationLinear:
-    def forward(self, inputs):
-        self.output = inputs
-        return self.output
-    
-    def derivative(self, inputs):
-        '''
-        this function calculates  f'(w.T*x)
-        '''
-        self.dinputs = np.ones_like(inputs)
-        return self.dinputs
-    
-class ActivationTanH:
-    def forward(self, inputs):
-        self.output = np.tanh(inputs)
-        return self.output
-    
-    def derivative(self, inputs):
-        self.dinputs = 1 - self.output**2
-        return self.dinputs
-    
-class ActivationSigmoid: #TODO: check this
-    def forward(self, inputs):
-        self.output = 1/(1+np.exp(-inputs))
-        return self.output
-    
-    def derivative(self, inputs):
-        self.dinputs = self.output * (1-self.output)
-        return self.dinputs
-    
-class ActivationSoftmax:
-    def forward(self, inputs):
-        exp_values = np.exp(inputs - np.max(inputs, axis=1, keepdims=True))
-        probabilities = exp_values / np.sum(exp_values, axis=1, keepdims=True)
-        self.output = probabilities
-        return self.output
-    
-    def derivative(self, inputs):
-        self.dinputs = np.ones_like(inputs)
-        return self.dinputs
-
-class ActivationLeakyReLU:
-    def __init__(self, alpha=0.01):
-        self.alpha = alpha
-    
-    def forward(self, inputs):
-        self.output = np.maximum(self.alpha*inputs, inputs)
-        return self.output
-    
-    def derivative(self, inputs):
-        self.dinputs = np.ones_like(inputs)
-        self.dinputs[inputs <= 0] = self.alpha
-        return self.dinputs
