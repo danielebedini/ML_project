@@ -52,3 +52,23 @@ print("Validation Loss: ", LossMSE(y_val, y_predicted))
 y_predicted = nn.forward(X_test)
 print("Test Accuracy: ", accuracy(y_test, y_predicted))
 print("Test Loss: ", LossMSE(y_test, y_predicted))
+
+#show some examples from the dataset
+
+import matplotlib.pyplot as plt
+start = 10
+end = start + 10
+new_X = X_test[start:end]
+new_y = y_test[start:end]
+y_predicted = nn.forward(new_X)
+for i in range(len(new_X)):
+    print("*************")
+    #show exaple in pyplot
+    plt.imshow(new_X[i].reshape(28,28), cmap='gray')
+    plt.show()
+    expected = np.argmax(new_y[i]) + 1
+    if expected == 10: expected = 0
+    print('expected: ', expected)
+    predicted = np.argmax(y_predicted[i]) + 1
+    if predicted == 10: predicted = 0
+    print('predicted: ', predicted)
