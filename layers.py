@@ -39,10 +39,7 @@ class LayerDense:
             self.delta = d_next_layer * d_activation
             # calculate gradient
             self.gradient = np.dot(self.output_previous_layer.T, self.delta)
-            if r_prop:
-                self.gradient = np.sign(self.gradient)
-            else: #TODO: decide if always apply this or not
-                self.gradient = np.clip(self.gradient, -0.5, 0.5)
+            self.gradient = np.clip(self.gradient, -0.5, 0.5)
             #reshape gradient if needed e.g from (3,) to (3,1)
             if self.weights.shape[1] == 1: self.gradient = self.gradient.reshape(self.weights.shape)
             # newWeights -= multiply by learning rate  +          regularization           +       momentum
