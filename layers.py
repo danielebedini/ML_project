@@ -22,7 +22,7 @@ class LayerDense:
         self.outputActivated  = self.activationFunction.forward(self.outputNotActivated)
         return self.outputActivated
     
-    def backward(self, d_next_layer, learningRate = 0.001, weights_next_layer = None, lambdaRegularization:float = 0, momentum:float = 0.9):
+    def backward(self, d_next_layer, learningRate = 0.001, weights_next_layer = None, lambdaRegularization:float = 0, momentum:float = 0.9, r_prop:bool = False):
         '''
         Output layer:
             - compute d_error (given by input d_next_layer)
@@ -39,7 +39,10 @@ class LayerDense:
             self.delta = d_next_layer * d_activation
             # calculate gradient
             self.gradient = np.dot(self.output_previous_layer.T, self.delta)
-            self.gradient = np.clip(self.gradient, -0.5, 0.5)
+            if r_prop:
+                self.gradient = np.sign(self.gradient)
+            else: #TODO: decide if always apply this or not
+                self.gradient = np.clip(self.gradient, -0.5, 0.5)
             #reshape gradient if needed e.g from (3,) to (3,1)
             if self.weights.shape[1] == 1: self.gradient = self.gradient.reshape(self.weights.shape)
             # newWeights -= multiply by learning rate  +          regularization           +       momentum
@@ -64,9 +67,10 @@ class LayerDense:
             self.d_error = np.dot(d_next_layer, weights_next_layer.T)
             self.delta = self.d_error * d_activation
             self.gradient = np.dot(self.output_previous_layer.T, self.delta)
-            #use only one of the following 2 lines (second is more appropriate for deep networks)
-            self.gradient = np.clip(self.gradient, -1, 1)
-            #self.gradient = np.sign(self.gradient)
+            if r_prop:
+                self.gradient = np.sign(self.gradient)
+            else: #TODO: decide if always apply this or not
+                self.gradient = np.clip(self.gradient, -1, 1)
             # newWeights -= multiply by learning rate  +          regularization           +       momentum
             self.weights -= learningRate*self.gradient + lambdaRegularization*self.weights + self.pastGradient*momentum
             self.pastGradient = self.gradient*learningRate                      # if added regualrized with own term

@@ -18,7 +18,7 @@ class NeuralNet:
             X = layer.forward(X)
         return X
 
-    def backward(self, X:np.ndarray, y_true:np.ndarray, learningRate:float, lambdaRegularization:float = 0, momentum:float = 0):
+    def backward(self, X:np.ndarray, y_true:np.ndarray, learningRate:float, lambdaRegularization:float = 0, momentum:float = 0, r_prop:bool = False):
         '''
         X: input
         y_true: expected output
@@ -33,11 +33,11 @@ class NeuralNet:
         for i in range(len(self.layers)):
             back_index= len(self.layers)-1-i
             if i == 0: # output layer
-                self.layers[back_index].backward(diff, learningRate, None, lambdaRegularization)
+                self.layers[back_index].backward(diff, learningRate, None, lambdaRegularization, momentum, r_prop)
             else: # hidden layers
-                self.layers[back_index].backward(self.layers[back_index+1].delta, learningRate, self.layers[back_index+1].weights, lambdaRegularization)
+                self.layers[back_index].backward(self.layers[back_index+1].delta, learningRate, self.layers[back_index+1].weights, lambdaRegularization, momentum, r_prop)
 
-    def train(self, X, y, ValX = None, ValY = None, learningRate = 0.001, epochs = 200, batch_size=1, lambdaRegularization:float = 0, momentum:float = 0, patience:int = -1, tau:int=0) -> (list, list):
+    def train(self, X, y, ValX = None, ValY = None, learningRate = 0.001, epochs = 200, batch_size=1, lambdaRegularization:float = 0, momentum:float = 0, patience:int = -1, tau:int=0, r_prop:bool = False) -> (list, list):
 
         trainingErrors = []
         validationErrors = []
@@ -51,7 +51,7 @@ class NeuralNet:
         if batch_size==-1: # All samples at once (batch)
 
             for epoch in range(epochs):
-                self.backward(X, y, learningRate, lambdaRegularization, momentum)
+                self.backward(X, y, learningRate, lambdaRegularization, momentum, r_prop)
                 if ValX is not None:
                     #val loss
                     validationErrors.append(self.get_errors(ValX, ValY, LossMSE))
@@ -76,9 +76,9 @@ class NeuralNet:
                 y = y[p]
                 for i in range(0, len(X), batch_size):
                     if i+batch_size < len(X):
-                        self.backward(X[i:i+batch_size], y[i:i+batch_size], self.variable_learning_rate(epoch, learningRate, tau), lambdaRegularization, momentum)
+                        self.backward(X[i:i+batch_size], y[i:i+batch_size], self.variable_learning_rate(epoch, learningRate, tau), lambdaRegularization, momentum, r_prop)
                     else:
-                        self.backward(X[i:], y[i:], self.variable_learning_rate(epoch, learningRate, tau), lambdaRegularization)
+                        self.backward(X[i:], y[i:], self.variable_learning_rate(epoch, learningRate, tau), lambdaRegularization, momentum, r_prop)
                 if ValX is not None:
                     #val loss
                     validationErrors.append(self.get_errors(ValX, ValY, LossMSE))
