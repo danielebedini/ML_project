@@ -36,7 +36,7 @@ nn = NeuralNet([LayerDense(2, 10, ActivationTanH()),
 y_predicted = nn.forward(X)
 print("Initial Accuracy: ", accuracy(y, y_predicted))
 
-trError, valError = nn.train(X, y, learningRate=0.001, epochs=25, batch_size=20)
+trError, valError = nn.train(X, y, epochs=500, batch_size=-1, r_prop=RProp(delta_0=0.01, delta_max=0.1))
 
 #compute accuracy
 y_predicted = nn.forward(X)
@@ -48,34 +48,25 @@ plot_data_error(trError, valError)
 ################# tensorflow ##################
 ###############################################
 
-import tensorflow as tf
-from tensorflow import keras
 from keras.models import Sequential
 from keras.layers import Dense
-from keras.optimizers import Adam
 
 model = Sequential()
-model.add(Dense(10, input_dim=2, activation='relu'))
-model.add(Dense(12, activation='relu'))
+model.add(Dense(10, input_dim=2, activation='tanh'))
+model.add(Dense(12, activation='tanh'))
 model.add(Dense(16, activation='tanh'))
 model.add(Dense(16, activation='tanh'))
 model.add(Dense(12, activation='tanh'))
 model.add(Dense(5, activation='tanh'))
 model.add(Dense(2, activation='tanh'))
-optimizeAdam = Adam(
-    learning_rate=0.001,
-    beta_1=0,
-    beta_2=0,
-    epsilon=0,
-    name='Adam',
-)
-model.compile(loss='mean_squared_error', optimizer=optimizeAdam, metrics=['accuracy'])
+
+model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
 
 #accuracy before training
 y_predicted = model.predict(X)
 print("Initial Accuracy: ", accuracy(y, y_predicted))
 
-hystory = model.fit(X, y, epochs=20, batch_size=20, verbose=0)
+hystory = model.fit(X, y, epochs=250, batch_size=None)
 
 #accuracy after training
 y_predicted = model.predict(X)
