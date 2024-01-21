@@ -14,29 +14,29 @@ print(y.shape)
 
 #one hot encode input
 X = feature_one_hot_encoding(X, [3,3,2,3,4,2])
-#y = standard_one_hot_encoding(y, 2)
+y = standard_one_hot_encoding(y, 2)
 
 monkModel = NeuralNet([LayerDense(17, 10, ActivationTanH()),
                         LayerDense(10, 10, ActivationTanH()),
-                        LayerDense(10, 1, ActivationTanH())])
+                        LayerDense(10, 2, ActivationTanH())])
 
-trError, valError = monkModel.train(X, y, learningRate=0.05, epochs=60, batch_size=10, lambdaRegularization=0, momentum=0.99, tau=50)
+trError, valError = monkModel.train(X, y, learningRate=0.02, epochs=450, batch_size=5, lambdaRegularization=0, momentum=0.0, tau=0)
 
 #compute accuracy
-from metrics import LossMSE, accuracy_classifier_single_output as accuracy
+from metrics import LossMSE, accuracy_classifier_multiple_output as accuracy
 y_predicted = monkModel.forward(X)
 print("Training Accuracy: ", accuracy(y, y_predicted))
 #y_predicted = monkModel.forward(ValX)
 #print("validation Accuracy: ", accuracy(ValY, y_predicted))
-
+'''
 #check test error
 X, y = readMonkData(f"data/monk/monks-{monk_num}.test")
 X = feature_one_hot_encoding(X, [3,3,2,3,4,2])
-#y = standard_one_hot_encoding(y, 2)
+y = standard_one_hot_encoding(y, 2)
 y_predicted = monkModel.forward(X)
 print("Test Accuracy our baby: ", accuracy(y, y_predicted))
 print("Test Loss: ", LossMSE(y, y_predicted))
-
+'''
 import matplotlib.pyplot as plt
 plt.plot(trError, label="Training error")
 plt.plot(valError, label="Validation error")

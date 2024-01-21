@@ -24,12 +24,12 @@ class NeuralNet:
         y_true: expected output
         learningRate: learning rate
         '''
-        #TODO: fix for online case probably the error is in the computation of diff
         y = self.forward(X)
         #if second shape is 1, then we have a single output
         if y.shape[1] == 1: y = np.reshape(y, y.shape[0])
         diff = -np.subtract(y_true, y)
-
+        #normalize diff
+        diff = diff/len(X)
         for i in range(len(self.layers)):
             back_index= len(self.layers)-1-i
             if i == 0: # output layer
