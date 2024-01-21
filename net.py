@@ -59,8 +59,7 @@ class NeuralNet:
                     validationErrors.append(self.get_errors(ValX, ValY, LossMSE))
                 #tr loss
                 trainingErrors.append(self.get_errors(X, y, LossMSE))
-                if epoch % 10 == 0:
-                    printProgressBar(epoch, epochs, prefix = 'Progress:', suffix = f'Loss : {trainingErrors[epoch+1]}', length = 50)
+                printProgressBar(epoch, epochs, prefix = 'Progress:', suffix = f'Loss : {trainingErrors[epoch+1]}', length = 50)
                 # check stopping criteria
                 if self.check_stopping_criteria(validationErrors, trainingErrors, lambdaRegularization, patience):
                     print("\nEarly stopping at epoch: ", epoch)
