@@ -50,6 +50,8 @@ class NeuralNet:
         print("Initial loss: ", trainingErrors[0])
         
         if batch_size==-1: # All samples at once (batch)
+            if tau != 0:
+                raise Exception("Variable learning rate is not supported for batch training")
             for epoch in range(epochs):
                 self.backward(X, y, learningRate, lambdaRegularization, momentum, r_prop)
                 if ValX is not None:
@@ -68,7 +70,8 @@ class NeuralNet:
             return trainingErrors, validationErrors
 
         else: # Mini-batch, we can also do online training by setting batch_size=1
-
+            if r_prop:
+                raise Exception("RProp is not supported for mini-batch/onlines training")
             for epoch in range(epochs):
                 #shuffle data
                 p = np.random.permutation(len(X))
