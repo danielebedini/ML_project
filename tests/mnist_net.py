@@ -35,7 +35,11 @@ y_train = y_train[:50000]
 nn = NeuralNet([LayerDense(784, 100, ActivationTanH()),
                 LayerDense(100, 10, ActivationSoftmax())])
 
-trError, valError = nn.train(X_train, y_train, ValX=X_val, ValY=y_val, learningRate=0.05, epochs=100, batch_size=1000, lambdaRegularization=0, patience=3, tau=20)
+trError, valError = nn.train(X_train, y_train, 
+                             ValX=X_val, ValY=y_val, 
+                             epochs=100, batch_size=-1, 
+                             patience=5,
+                             r_prop=RProp(delta_0=0.01, delta_max=0.1))
 
 # plot training and validation error
 plot_data_error(trError, valError)
@@ -57,4 +61,4 @@ print("Test Accuracy: ", accuracy(y_test, y_predicted))
 print("Test Loss: ", LossMSE(y_test, y_predicted))
 
 #save network weights
-nn.save_weights("weights/mnist_weights")
+#nn.save_weights("weights/mnist_weights")

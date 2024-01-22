@@ -1,19 +1,26 @@
 import numpy as np
 from activations import ActivationFunction
+from r_prop_parameter import RProp
 
 class LayerDense:
 
     def __init__(self, nInputs, nNeurons, activationFunction:ActivationFunction):
-        self.weights = 0.05 * np.random.randn(nInputs, nNeurons)
         self.activationFunction = activationFunction
-        self.pastGradient = 0
+        self.weights = 0.05 * np.random.randn(nInputs, nNeurons)
         self.bias = 0.05 * np.random.randn(1, nNeurons)
+        self.pastGradient = 0
+        self.rp_delta = None
+        self.rp_delta_bias = None
+        self.pastGradient_bias = 0
 
 
     def reset(self):
         self.weights = 0.05 * np.random.randn(self.weights.shape[0], self.weights.shape[1])
         self.bias = 0.05 * np.random.randn(self.bias.shape[0], self.bias.shape[1])
         self.pastGradient = 0
+        self.rp_delta = None
+        self.rp_delta_bias = None
+        self.pastGradient_bias = 0
 
 
     def forward(self, inputs):
@@ -22,7 +29,7 @@ class LayerDense:
         self.outputActivated  = self.activationFunction.forward(self.outputNotActivated)
         return self.outputActivated
     
-    def backward(self, d_next_layer, learningRate = 0.001, weights_next_layer = None, lambdaRegularization:float = 0, momentum:float = 0.9, r_prop:bool = False):
+    def backward(self, d_next_layer, learningRate = 0.001, weights_next_layer = None, lambdaRegularization:float = 0, momentum:float = 0.9, r_prop:RProp|None = None):
         '''
         Output layer:
             - compute d_error (given by input d_next_layer)
@@ -39,14 +46,21 @@ class LayerDense:
             self.delta = d_next_layer * d_activation
             # calculate gradient
             self.gradient = np.dot(self.output_previous_layer.T, self.delta)
-            self.gradient = np.clip(self.gradient, -0.5, 0.5)
             #reshape gradient if needed e.g from (3,) to (3,1)
             if self.weights.shape[1] == 1: self.gradient = self.gradient.reshape(self.weights.shape)
-            # newWeights -= multiply by learning rate  +          regularization           +       momentum
-            self.weights -= learningRate*self.gradient + lambdaRegularization*self.weights + self.pastGradient*momentum
-            self.pastGradient = self.gradient*learningRate                      # if added regualrized with own term
-            # new bias = gradient descent*learning rate                         #+      regularization for bias
-            self.bias -= np.sum(learningRate*self.delta, axis=0, keepdims=True) #+ lambdaRegularization*self.bias
+            if r_prop:
+                self.rp_delta, self.pastGradient = r_prop.update_layer(self.gradient, self.pastGradient, self.rp_delta)
+                self.weights -= self.pastGradient + lambdaRegularization*self.weights
+                self.rp_delta_bias, self.pastGradient_bias = r_prop.update_layer(np.sum(self.delta, axis=0, keepdims=True), self.pastGradient_bias, self.rp_delta_bias)
+                self.bias -= self.pastGradient_bias + lambdaRegularization*self.bias
+            else:
+                #TODO: decide if always apply clipping or not
+                self.gradient = np.clip(self.gradient, -0.5, 0.5)
+                # newWeights -= multiply by learning rate  +          regularization           +       momentum
+                self.weights -= learningRate*self.gradient + lambdaRegularization*self.weights + self.pastGradient*momentum
+                self.pastGradient = self.gradient*learningRate                      # if added regualrized with own term
+                # new bias = gradient descent*learning rate                         #+      regularization for bias
+                self.bias -= np.sum(learningRate*self.delta, axis=0, keepdims=True) #+ lambdaRegularization*self.bias
 
         '''
         Hidden layer:
@@ -65,12 +79,16 @@ class LayerDense:
             self.delta = self.d_error * d_activation
             self.gradient = np.dot(self.output_previous_layer.T, self.delta)
             if r_prop:
-                self.gradient = np.sign(self.gradient)
-            else: #TODO: decide if always apply this or not
+                self.rp_delta, self.pastGradient = r_prop.update_layer(self.gradient, self.pastGradient, self.rp_delta)
+                self.weights -= self.pastGradient + lambdaRegularization*self.weights
+                self.rp_delta_bias, self.pastGradient_bias = r_prop.update_layer(np.sum(self.delta, axis=0, keepdims=True), self.pastGradient_bias, self.rp_delta_bias)
+                self.bias -= self.pastGradient_bias + lambdaRegularization*self.bias
+            else: 
+                #TODO: decide if always apply clipping or not
                 self.gradient = np.clip(self.gradient, -1, 1)
-            # newWeights -= multiply by learning rate  +          regularization           +       momentum
-            self.weights -= learningRate*self.gradient + lambdaRegularization*self.weights + self.pastGradient*momentum
-            self.pastGradient = self.gradient*learningRate                      # if added regualrized with own term
-            # new bias = gradient descent*learning rate                         #+      regularization for bias
-            self.bias -= np.sum(learningRate*self.delta, axis=0, keepdims=True) #+ lambdaRegularization*self.bias
+                # newWeights -= multiply by learning rate  +          regularization           +       momentum
+                self.weights -= learningRate*self.gradient + lambdaRegularization*self.weights + self.pastGradient*momentum
+                self.pastGradient = self.gradient*learningRate                      # if added regualrized with own term
+                # new bias = gradient descent*learning rate                         #+      regularization for bias
+                self.bias -= np.sum(learningRate*self.delta, axis=0, keepdims=True) #+ lambdaRegularization*self.bias
 
