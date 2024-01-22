@@ -12,11 +12,9 @@ class ActivationFunction:
         return 0.05 * np.random.randn(nInputs, nNeurons)
 
     def _initialize_xavier(self, nInputs, nNeurons): # Xavier initialization for sigmoid, tanh, ecc.. activation function
-        print("Weights initialized with Xavier initialization.")
         return np.random.randn(nInputs, nNeurons) * np.sqrt(2/(nInputs+nNeurons))
     
     def _initialize_he(self, nInputs, nNeurons): # He initialization for ELU or similar activation function
-        print("Weights initialized with He initialization.")
         return np.random.randn(nInputs, nNeurons) * np.sqrt(2/nInputs)
     
 
