@@ -10,20 +10,26 @@ from metrics import *
 #from data.data3 import generate_data
 from utilities import readMonkData, feature_one_hot_encoding, standard_one_hot_encoding, plot_data_error
 
-# Create data
-#X, y = generate_data(1000)
+# Here we can choose the monk dataset to use, number from 1 to 3
+monk_num = 3
+# Read the training data from the selected monk dataset
+X, y = readMonkData(f"data/monk/monks-{monk_num}.train")
 
-X, y = readMonkData("data/monk/monks-1.train")
+print(X.shape)
+print(y.shape)
+
+#one hot encode input
 X = feature_one_hot_encoding(X, [3,3,2,3,4,2])
-y = standard_one_hot_encoding(y, 2)
+#y = standard_one_hot_encoding(y, 2)
 
-nn = NeuralNet([LayerDense(17, 6, ActivationTanH()),
-                LayerDense(6, 6, ActivationTanH()),
-                LayerDense(6, 2, ActivationLinear())])
+nn = NeuralNet([LayerDense(17, 14, ActivationTanH()),
+                LayerDense(14, 10, ActivationTanH()),
+                LayerDense(10, 1, ActivationTanH())])
 
 validator = Validator(nn, X, y, LossMSE, accuracy_classifier_multiple_output)
 
-trainingErrors, validationErrors, trAccuracy, valAccuracy = validator.kfold(3, 300, 0.001, batch_size=50)
+trainingErrors, validationErrors, trAccuracy, valAccuracy = validator.kfold(k=3, epochs=100, learningRate=0.001, batch_size=30, 
+                                                                            lambdaRegularization=0, patience=3, tau=10)
 
 
 print("*********************")

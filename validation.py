@@ -13,7 +13,7 @@ class Validator:
         #self.accuracy = None
 
         
-    def kfold(self, k:int, epochs:int, learningRate:float, batch_size:int=-1):
+    def kfold(self, k:int, epochs:int, learningRate:float, batch_size:int=-1, lambdaRegularization:float=0, patience:int=-1, tau:int=10):
         '''
         k: number of folds
         epochs: number of epochs
@@ -36,7 +36,8 @@ class Validator:
             trY = np.concatenate((self.y[:fold*valSize], self.y[(fold+1)*valSize:]))
 
             # train
-            trError, valError = self.nn.train(trX, trY, ValX=valX, ValY=valy, learningRate=learningRate, epochs=epochs, batch_size=batch_size)
+            trError, valError = self.nn.train(trX, trY, ValX=valX, ValY=valy, learningRate=learningRate, epochs=epochs, batch_size=batch_size,
+                                              lambdaRegularization=lambdaRegularization, patience=patience, tau=tau)
             plot_data_error(trError, valError)
             # calculate loss and accuracy in according to the chosen metrics
             # loss on training set
