@@ -40,7 +40,7 @@ trError, valError = nn.train(X, y, epochs=500, batch_size=-1, r_prop=RProp(delta
 
 #compute accuracy
 y_predicted = nn.forward(X)
-print("training Accuracy: ", accuracy(y, y_predicted))
+print("Training Accuracy: ", accuracy(y, y_predicted))
 plot_data_error(trError, valError)
 
 
@@ -70,8 +70,8 @@ hystory = model.fit(X, y, epochs=250, batch_size=None)
 
 #accuracy after training
 y_predicted = model.predict(X)
-print("training Accuracy: ", accuracy(y, y_predicted))
-print("training Loss: ", LossMSE(y, y_predicted))
+print("Training Accuracy: ", accuracy(y, y_predicted))
+print("Training Loss: ", LossMSE(y, y_predicted))
 #plot training and validation error
 lossTF = hystory.history['loss']
 plot_data_error(lossTF, lossTF)

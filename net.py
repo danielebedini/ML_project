@@ -167,3 +167,4 @@ class NeuralNet:
         for i in range(len(self.layers)):
             self.layers[i].weights = np.loadtxt(path+f"_{i}")
             self.layers[i].bias = np.loadtxt(path+f"_{i}_bias")
+

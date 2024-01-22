@@ -32,7 +32,7 @@ for epoch in range(1000):
 '''
 
 nn = NeuralNet([LayerDense(2, 6, ActivationTanH()),
-                LayerDense(6, 6, ActivationTanH()),
+                LayerDense(6, 6, ActivationLeakyReLU()),
                 LayerDense(6, 2, ActivationLinear())])
 
 trError, valError = nn.train(X, y, ValX=valX, ValY=valy, learningRate=0.05, epochs=10, batch_size=10, lambdaRegularization=0, patience=2, tau=40)

@@ -5,7 +5,7 @@ from net import NeuralNet
 from utilities import feature_one_hot_encoding, readMonkData, standard_one_hot_encoding
 
 # Here we can choose the monk dataset to use, number from 1 to 3
-monk_num = 3
+monk_num = 1
 # Read the training data from the selected monk dataset
 X, y = readMonkData(f"data/monk/monks-{monk_num}.train")
 

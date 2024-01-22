@@ -6,7 +6,7 @@ class LayerDense:
 
     def __init__(self, nInputs, nNeurons, activationFunction:ActivationFunction):
         self.activationFunction = activationFunction
-        self.weights = 0.05 * np.random.randn(nInputs, nNeurons)
+        self.weights = activationFunction.initialize_weights(nInputs, nNeurons)
         self.bias = 0.05 * np.random.randn(1, nNeurons)
         self.pastGradient = 0
         self.rp_delta = None
