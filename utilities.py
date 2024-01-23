@@ -22,6 +22,7 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     if iteration == total: 
         print()
 
+
 def readMonkData(filename:str) -> (np.ndarray, np.ndarray):
     input = []
     output = []
@@ -31,6 +32,7 @@ def readMonkData(filename:str) -> (np.ndarray, np.ndarray):
             input.append(values[1:])
             output.append(values[0])
     return np.array(input), np.array(output)
+
 
 def feature_one_hot_encoding(y:np.ndarray, classes:[int]) -> np.ndarray:
     '''
@@ -49,6 +51,7 @@ def feature_one_hot_encoding(y:np.ndarray, classes:[int]) -> np.ndarray:
                 one_hot[i, prev_classes + y[i,j] - 1] = 1
     return one_hot
 
+
 def standard_one_hot_encoding(y:np.ndarray, classes:int) -> np.ndarray:
     '''
     y: array of labels
@@ -58,6 +61,7 @@ def standard_one_hot_encoding(y:np.ndarray, classes:int) -> np.ndarray:
     for i in range(y.shape[0]): #for each sample
         one_hot[i, y[i] - 1] = 1
     return one_hot
+
 
 def plot_data_error(trError:np.ndarray, valError:np.ndarray):
     import matplotlib.pyplot as plt

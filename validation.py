@@ -3,6 +3,8 @@ from net import NeuralNet
 from utilities import plot_data_error
 
 class Validator:
+
+    
     def __init__(self, nn: NeuralNet, X:np.array, y:np.array, loss:callable, accuracy:callable= None ):
         self.nn = nn
         self.X = X

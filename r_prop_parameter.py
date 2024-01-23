@@ -2,6 +2,8 @@ import numpy as np
 
 
 class RProp:
+
+
     def __init__(self, delta_0:float = 0.1, 
                  delta_max:float = 1.0, 
                  delta_min:float = 1e-6, 
@@ -13,6 +15,7 @@ class RProp:
         self.eta_minus = eta_minus
         self.eta_plus = eta_plus
     
+
     def update_layer(self, new_err_der:np.ndarray, old_err_der:np.ndarray, old_delta:np.ndarray) -> (np.ndarray, np.ndarray):
         '''
         everything should be shaped as: (n_inputs, n_neurons)
@@ -37,6 +40,7 @@ class RProp:
 
         return new_delta, new_gradient 
     
+
     def _update_delta(self, sign, old_delta):
         if sign > 0:
             new_delta = np.minimum(old_delta*self.eta_plus, self.delta_max)
@@ -45,6 +49,7 @@ class RProp:
         else:
             new_delta = old_delta
         return new_delta
+    
     
     def _update_gradient(self, sign, old_err_der, new_err_der, new_delta):
         if sign > 0:

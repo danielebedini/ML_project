@@ -5,7 +5,7 @@ from net import NeuralNet
 from utilities import feature_one_hot_encoding, readMonkData, standard_one_hot_encoding
 
 # Here we can choose the monk dataset to use, number from 1 to 3
-monk_num = 3
+monk_num = 1
 # Read the training data from the selected monk dataset
 X, y = readMonkData(f"data/monk/monks-{monk_num}.train")
 
@@ -20,7 +20,7 @@ monkModel = NeuralNet([LayerDense(17, 4, ActivationTanH()),
                         #LayerDense(14, 10, ActivationTanH()),
                         LayerDense(4, 1, ActivationTanH())])
 
-trError, valError = monkModel.train(X, y, epochs=200, batch_size=30, learningRate=0.05, lambdaRegularization=0, momentum=0.9)
+trError, valError = monkModel.train(X, y, epochs=60, batch_size=10, learningRate=0.05, lambdaRegularization=0, momentum=0.9)
 
 #compute accuracy
 from metrics import LossMSE, accuracy_classifier_single_output as accuracy

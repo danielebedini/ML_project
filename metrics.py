@@ -10,6 +10,7 @@ def LossMSE(expectedOutputs, outputs):
     if outputs.shape[1] == 1: outputs = np.reshape(outputs, outputs.shape[0])
     return np.sum((expectedOutputs - outputs) ** 2) / expectedOutputs.size
 
+
 def accuracy_classifier_single_output(expectedOutputs, outputs):
     '''
     this function calculates the accuracy of the model
@@ -23,6 +24,7 @@ def accuracy_classifier_single_output(expectedOutputs, outputs):
         if expectedOutputs[i] == (outputs[i] > 0.5):
             correct += 1
     return correct / len(expectedOutputs)
+
 
 def accuracy_classifier_multiple_output(expectedOutputs, outputs):
     '''

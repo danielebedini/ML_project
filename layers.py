@@ -4,6 +4,7 @@ from r_prop_parameter import RProp
 
 class LayerDense:
 
+
     def __init__(self, nInputs, nNeurons, activationFunction:ActivationFunction):
         self.activationFunction = activationFunction
         self.weights = activationFunction.initialize_weights(nInputs, nNeurons)
@@ -29,6 +30,7 @@ class LayerDense:
         self.outputActivated  = self.activationFunction.forward(self.outputNotActivated)
         return self.outputActivated
     
+
     def backward(self, d_next_layer, learningRate = 0.001, weights_next_layer = None, lambdaRegularization:float = 0, momentum:float = 0.9, r_prop:RProp|None = None):
         '''
         Output layer:

@@ -8,14 +8,14 @@ from keras.optimizers import Adam
 from utilities import feature_one_hot_encoding, readMonkData, plot_data_error
 from metrics import LossMSE, accuracy_classifier_single_output as accuracy
 
-monk_num = 3
+monk_num = 1
 
 optimizerAdam = Adam(learning_rate=0.05, beta_1=0.99, beta_2=0, amsgrad=False)
 
 model = Sequential()
-model.add(Dense(10, input_dim=17, activation='tanh'))
-model.add(Dense(10, activation='tanh'))
-model.add(Dense(1, activation='tanh'))
+model.add(Dense(4, input_dim=17, activation='tanh'))
+#model.add(Dense(10, activation='tanh'))
+model.add(Dense(1, input_dim=4, activation='tanh'))
 model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
 
 X, y = readMonkData(f"data/monk/monks-{monk_num}.train")

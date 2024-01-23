@@ -7,17 +7,21 @@ from utilities import printProgressBar
 
 class NeuralNet:
 
+
     def __init__(self, layers:[LayerDense]):
         self.layers = layers # a list of layers
     
+
     def reset(self):
         for layer in self.layers:
             layer.reset()
+
 
     def forward(self, X) -> np.ndarray:
         for layer in self.layers:
             X = layer.forward(X)
         return X
+
 
     def backward(self, X:np.ndarray, y_true:np.ndarray, learningRate:float, lambdaRegularization:float = 0, momentum:float = 0, r_prop:RProp|None = None):
         '''
@@ -37,6 +41,7 @@ class NeuralNet:
                 self.layers[back_index].backward(diff, learningRate, None, lambdaRegularization, momentum, r_prop)
             else: # hidden layers
                 self.layers[back_index].backward(self.layers[back_index+1].delta, learningRate, self.layers[back_index+1].weights, lambdaRegularization, momentum, r_prop)
+
 
     def train(self, X, y, ValX = None, ValY = None, learningRate = 0.001, epochs = 200, batch_size=1, lambdaRegularization:float = 0, momentum:float = 0, patience:int = -1, tau:int=0, r_prop:RProp|None = None) -> (list, list):
 
@@ -97,11 +102,13 @@ class NeuralNet:
             printProgressBar(epochs, epochs, prefix = 'Progress:', suffix = f'Loss : {trainingErrors[epochs]}', length = 50)
             return trainingErrors, validationErrors
     
+
     def get_errors(self, X: np.array, y:np.array, loss:callable):
         y_predicted = self.forward(X)
         loss = loss(y, y_predicted)
         return loss
     
+
     def check_stopping_criteria(self, validationErrors:[float], trainingErrors:[float], lambdaRegularization:float, patience:int) -> bool:
         '''
         validationErrors: list of validation errors
@@ -149,6 +156,7 @@ class NeuralNet:
         else:
             return eta_tau # after a certain number of epochs, we keep the learning rate equal to eta_tau
         
+
     def save_weights(self, path:str):
         '''
         path: path where to save the weights
@@ -160,6 +168,7 @@ class NeuralNet:
             np.savetxt(path+f"_{i}", self.layers[i].weights)
             np.savetxt(path+f"_{i}_bias", self.layers[i].bias)
     
+
     def load_weights(self, path:str):
         '''
         path: path where to load the weights
