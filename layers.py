@@ -53,7 +53,7 @@ class LayerDense:
                 self.rp_delta, self.pastGradient = r_prop.update_layer(self.gradient, self.pastGradient, self.rp_delta)
                 self.weights -= self.pastGradient + lambdaRegularization*self.weights
                 self.rp_delta_bias, self.pastGradient_bias = r_prop.update_layer(np.sum(self.delta, axis=0, keepdims=True), self.pastGradient_bias, self.rp_delta_bias)
-                self.bias -= self.pastGradient_bias + lambdaRegularization*self.bias
+                self.bias -= self.pastGradient_bias
             else:
                 self.gradient = np.clip(self.gradient, -0.5, 0.5)
                 # gradient        = multiply by learning rate  +          regularization           +       momentum
@@ -82,7 +82,7 @@ class LayerDense:
                 self.rp_delta, self.pastGradient = r_prop.update_layer(self.gradient, self.pastGradient, self.rp_delta)
                 self.weights -= self.pastGradient + lambdaRegularization*self.weights
                 self.rp_delta_bias, self.pastGradient_bias = r_prop.update_layer(np.sum(self.delta, axis=0, keepdims=True), self.pastGradient_bias, self.rp_delta_bias)
-                self.bias -= self.pastGradient_bias + lambdaRegularization*self.bias
+                self.bias -= self.pastGradient_bias
             else: 
                 self.gradient = np.clip(self.gradient, -1, 1)
                 # gradient        = multiply by learning rate  +          regularization           +       momentum

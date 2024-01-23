@@ -63,9 +63,9 @@ def standard_one_hot_encoding(y:np.ndarray, classes:int) -> np.ndarray:
     return one_hot
 
 
-def plot_data_error(trError:np.ndarray, valError:np.ndarray):
+def plot_data_error(trError:np.ndarray, valError:np.ndarray, firstName:str, secondName:str):
     import matplotlib.pyplot as plt
-    plt.plot(trError, label="Training error")
-    plt.plot(valError, label="Validation error")
+    plt.plot(trError, label=firstName)
+    plt.plot(valError, label=secondName, linestyle='dashdot', color='r')
     plt.legend()
     plt.show()

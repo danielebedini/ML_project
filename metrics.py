@@ -11,6 +11,16 @@ def LossMSE(expectedOutputs, outputs):
     return np.sum((expectedOutputs - outputs) ** 2) / expectedOutputs.size
 
 
+def MEE(expectedOutputs, outputs):
+    '''
+    this function calculates the mean euclidean error loss
+    expectedOutputs: the expected outputs of the activation function
+    outputs: the outputs of the activation function
+    '''
+    if outputs.shape[1] == 1: outputs = np.reshape(outputs, outputs.shape[0])
+    return np.sum(np.sqrt(np.sum((expectedOutputs - outputs) ** 2))) / expectedOutputs.shape[0]
+
+
 def accuracy_classifier_single_output(expectedOutputs, outputs):
     '''
     this function calculates the accuracy of the model
