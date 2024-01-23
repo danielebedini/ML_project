@@ -11,7 +11,7 @@ from metrics import *
 from utilities import readMonkData, feature_one_hot_encoding, standard_one_hot_encoding, plot_data_error
 
 # Here we can choose the monk dataset to use, number from 1 to 3
-monk_num = 2
+monk_num = 3
 # Read the training data from the selected monk dataset
 X, y = readMonkData(f"data/monk/monks-{monk_num}.train")
 
@@ -27,7 +27,8 @@ nn = NeuralNet([LayerDense(17, 4, ActivationTanH()),
 
 validator = Validator(nn, X, y, LossMSE, accuracy_classifier_single_output)
 
-trainingErrors, validationErrors, trAccuracy, valAccuracy = validator.kfold(k=15, epochs=250, learningRate=0.5, batch_size=-1, lambdaRegularization=0.0005)
+
+trainingErrors, validationErrors, trAccuracy, valAccuracy = validator.kfold(k=10, epochs=100, r_prop=RProp(), lambdaRegularization=0.07, patience=3)
 
 
 print("*********************")
