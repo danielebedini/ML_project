@@ -2,7 +2,6 @@ import numpy as np
 
 class ActivationFunction:
 
-
     def forward(self, inputs):
         raise NotImplementedError
     
@@ -26,7 +25,6 @@ class ActivationFunction:
 
 class ActivationReLU(ActivationFunction):
 
-
     def forward(self, inputs):
         self.output = np.maximum(0, inputs)
         return self.output
@@ -47,7 +45,6 @@ class ActivationReLU(ActivationFunction):
     
 
 class ActivationLeakyReLU(ActivationFunction):
-
 
     def __init__(self, alpha=0.01):
         self.alpha = alpha
@@ -70,7 +67,6 @@ class ActivationLeakyReLU(ActivationFunction):
     
 class ActivationLinear(ActivationFunction):
 
-
     def forward(self, inputs):
         self.output = inputs
         return self.output
@@ -84,7 +80,6 @@ class ActivationLinear(ActivationFunction):
         return self.dinputs
     
 class ActivationTanH(ActivationFunction):
-
 
     def forward(self, inputs):
         self.output = np.tanh(inputs)
@@ -102,7 +97,6 @@ class ActivationTanH(ActivationFunction):
 
 class ActivationSigmoid(ActivationFunction): #TODO: check this
 
-
     def forward(self, inputs):
         self.output = 1/(1+np.exp(-inputs))
         return self.output
@@ -119,7 +113,6 @@ class ActivationSigmoid(ActivationFunction): #TODO: check this
 
 class ActivationSoftmax(ActivationFunction):
 
-
     def forward(self, inputs):
         exp_values = np.exp(inputs - np.max(inputs, axis=1, keepdims=True))
         probabilities = exp_values / np.sum(exp_values, axis=1, keepdims=True)
@@ -131,6 +124,6 @@ class ActivationSoftmax(ActivationFunction):
         self.dinputs = np.ones_like(inputs)
         return self.dinputs
     
-    
+
     def initialize_weights(self, nInputs, nNeurons):
         return self._initialize_xavier(nInputs, nNeurons)

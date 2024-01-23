@@ -3,7 +3,6 @@ import numpy as np
 
 class RProp:
 
-
     def __init__(self, delta_0:float = 0.1, 
                  delta_max:float = 1.0, 
                  delta_min:float = 1e-6, 
@@ -50,7 +49,7 @@ class RProp:
             new_delta = old_delta
         return new_delta
     
-    
+
     def _update_gradient(self, sign, old_err_der, new_err_der, new_delta):
         if sign > 0:
             weight_update_value = np.sign(new_err_der)*new_delta

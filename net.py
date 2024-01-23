@@ -7,7 +7,6 @@ from utilities import printProgressBar
 
 class NeuralNet:
 
-
     def __init__(self, layers:[LayerDense]):
         self.layers = layers # a list of layers
     
@@ -138,6 +137,7 @@ class NeuralNet:
             return True
         
         return False
+    
     
     def variable_learning_rate(self, epoch:int, initial_learning_rate:float, tau:int) -> float:
         '''

@@ -4,7 +4,6 @@ from r_prop_parameter import RProp
 
 class LayerDense:
 
-
     def __init__(self, nInputs, nNeurons, activationFunction:ActivationFunction):
         self.activationFunction = activationFunction
         self.weights = activationFunction.initialize_weights(nInputs, nNeurons)
