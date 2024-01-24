@@ -16,7 +16,7 @@ y = y[:int(len(y)*0.5)] #WARNING: do not touch this line
 
 
 #####################################################################
-# during experimentig phase apply changese onlu from here and below #
+# during experimentig phase apply changese only from here and below #
 # | |                     |         |                           | | #
 # V V                     V         V                           V V #
 #####################################################################
