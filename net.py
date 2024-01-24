@@ -136,9 +136,9 @@ class NeuralNet:
             #check if the training error is decreasing
             if trainingErrors[-1] < trainingErrors[-patience]*0.999:# improvements of at least 0.1%
                 return False
-            print(f'E now: {trainingErrors[-1]}')
-            print(f'E before: {trainingErrors[-patience]}')
-            print(f'percentage: {trainingErrors[-1]/trainingErrors[-patience]}')
+            #print(f'E now: {trainingErrors[-1]}')
+            #print(f'E before: {trainingErrors[-patience]}')
+            #print(f'percentage: {trainingErrors[-1]/trainingErrors[-patience]}')
             return True
         
         elif patience > 0:
