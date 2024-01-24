@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from layers import *
+from learningRate import *
 from metrics import LossMSE
 from r_prop_parameter import RProp
 from utilities import printProgressBar
@@ -42,7 +43,7 @@ class NeuralNet:
                 self.layers[back_index].backward(self.layers[back_index+1].delta, learningRate, self.layers[back_index+1].weights, lambdaRegularization, momentum, r_prop)
 
 
-    def train(self, X, y, ValX = None, ValY = None, learningRate = 0.001, epochs = 200, batch_size=-1, lambdaRegularization:float = 0, momentum:float = 0, patience:int = -1, tau:int=0, r_prop:RProp|None = None, accuracy:callable = None) -> (list, list):
+    def train(self, X, y, ValX = None, ValY = None, learningRate:LearningRate=LearningRate(0.01), epochs = 200, batch_size=-1, lambdaRegularization:float = 0, momentum:float = 0, patience:int = -1, r_prop:RProp|None = None, accuracy:callable = None) -> (list, list):
 
         trainingErrors = []
         validationErrors = []
@@ -56,10 +57,10 @@ class NeuralNet:
         print("Initial loss: ", trainingErrors[0])
         
         if batch_size==-1: # All samples at once (batch)
-            if tau != 0:
+            if learningRate.__class__ == LearningRateLinearDecay:
                 raise Exception("Variable learning rate is not supported for batch training")
             for epoch in range(epochs):
-                self.backward(X, y, learningRate, lambdaRegularization, momentum, r_prop)
+                self.backward(X, y, learningRate(epoch), lambdaRegularization, momentum, r_prop)
                 if ValX is not None:
                     #validationErrors.append(self.get_errors(ValX, ValY, LossMSE))
                     self.update_metrics(ValX, ValY, LossMSE, accuracy, validationErrors, validationAccuracy)
@@ -84,9 +85,9 @@ class NeuralNet:
                 y = y[p]
                 for i in range(0, len(X), batch_size):
                     if i+batch_size < len(X):
-                        self.backward(X[i:i+batch_size], y[i:i+batch_size], self.variable_learning_rate(epoch, learningRate, tau), lambdaRegularization, momentum)
+                        self.backward(X[i:i+batch_size], y[i:i+batch_size], learningRate(epoch), lambdaRegularization, momentum)
                     else:
-                        self.backward(X[i:], y[i:], self.variable_learning_rate(epoch, learningRate, tau), lambdaRegularization, momentum)
+                        self.backward(X[i:], y[i:], learningRate(epoch), lambdaRegularization, momentum)
                 if ValX is not None:
                     self.update_metrics(ValX, ValY, LossMSE, accuracy, validationErrors, validationAccuracy)
                 self.update_metrics(X, y, LossMSE, accuracy, trainingErrors, trainingAccuracy)

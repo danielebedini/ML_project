@@ -6,6 +6,7 @@ import tensorflow as tf
 from net import NeuralNet
 from layers import *
 from activations import *
+from learningRate import *
 from metrics import LossMSE
 from utilities import plot_data_error
 
@@ -36,8 +37,8 @@ for i in patiences:
     for j in lambdas:
         trError, _, _, _ = nn.train(x_train, y_train, 
                                     lambdaRegularization=j,
-                                    epochs=150, batch_size=-1, 
-                                    r_prop=RProp(delta_0=0.01, delta_max=0.1),
+                                    epochs=350, 
+                                    r_prop=RProp(0.01, 1),
                                     patience=i)
         valError = LossMSE(y_val, nn.forward(x_val))
         nn.reset()
@@ -47,10 +48,4 @@ for i in patiences:
 robe.sort(key=lambda x: x[1])
 
 for i in robe:  
-    print("Patience: ", i[2], "Lambda: ", i[3], "Training Error: ", i[0], "Validation Error: ", i[1])
-    
-
-
-# plot training and validation error
-plot_data_error(trError, valError, firstName="Dio porco", secondName="Dio cane")
-
+    print('val error: ', i[1], '\ttrain error: ', i[0], '  \tlambda: ', i[3], '  \tpatience: ', i[2])
