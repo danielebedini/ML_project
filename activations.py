@@ -2,6 +2,13 @@ import numpy as np
 
 class ActivationFunction:
 
+    def __init__(self, standardInit:bool = False):
+        '''
+        standardInit: if True, the weights are initialized with a standard normal distribution
+                        else, the weights are initialized with a uniform distribution
+        '''
+        self.standardInit = standardInit
+
     def forward(self, inputs):
         raise NotImplementedError
     
@@ -11,12 +18,18 @@ class ActivationFunction:
     
 
     def initialize_weights(self, nInputs, nNeurons):
-        print("WARNING: initialized with random weights.")
-        return 0.05 * np.random.randn(nInputs, nNeurons)
+        #print("WARNING: initialized with random weights.")
+        if self.standardInit:
+            return 0.05 * np.random.randn(nInputs, nNeurons)
+        else:
+            return np.random.uniform(-0.05, 0.05, (nInputs, nNeurons))
 
 
     def _initialize_xavier(self, nInputs, nNeurons): # Xavier initialization for sigmoid, tanh, ecc.. activation function
-        return np.random.randn(nInputs, nNeurons) * np.sqrt(2/(nInputs+nNeurons))
+        if self.standardInit:# standard normal distribution
+            return np.random.randn(nInputs, nNeurons) * np.sqrt(2/(nInputs+nNeurons))
+        else:# uniform distribution
+            return np.random.uniform(-np.sqrt(6/(nInputs+nNeurons)), np.sqrt(6/(nInputs+nNeurons)), (nInputs, nNeurons))
     
 
     def _initialize_he(self, nInputs, nNeurons): # He initialization for ELU or similar activation function

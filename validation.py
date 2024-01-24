@@ -1,20 +1,21 @@
 import numpy as np
+from dataRescaling import DataProcessor
+from learningRate import LearningRate
 from net import NeuralNet
 from utilities import plot_data_error
 
 class Validator:
 
-    def __init__(self, nn: NeuralNet, X:np.array, y:np.array, loss:callable, accuracy:callable= None ):
+    def __init__(self, nn: NeuralNet, X:np.array, y:np.array, loss:callable, accuracy:callable= None, showPlot:bool=True):
         self.nn = nn
         self.X = X
         self.y = y
         self.loss = loss
         self.accuracy = accuracy
-        #self.y_predicted = None
-        #self.accuracy = None
+        self.showPlot = showPlot
 
         
-    def kfold(self, k:int, epochs:int, learningRate:float = 0.5, batch_size:int=-1, lambdaRegularization:float=0, momentum:float=0 ,patience:int=-1, tau:int=0, r_prop:bool=False):
+    def kfold(self, k:int, epochs:int, learningRate:LearningRate = LearningRate(0.1), batch_size:int=-1, lambdaRegularization:float=0, momentum:float=0 ,patience:int=-1, r_prop:bool=False, outputProcessor:DataProcessor = None) -> (float, float, float, float):
         '''
         k: number of folds
         epochs: number of epochs
@@ -27,20 +28,26 @@ class Validator:
         trainingAccuracyList = []
         validationAccuracyList = []
 
-        trainingError = 0
-        validationError = 0
-        trainingAccuracy = 0
-        validationAccuracy = 0
+        trainingError = []
+        validationError = []
+        trainingAccuracy = []
+        validationAccuracy = []
 
+        self.nn.reset()
 
         for fold in range(k):
             # create validation set
             valX = self.X[fold*valSize:(fold+1)*valSize]
             valy = self.y[fold*valSize:(fold+1)*valSize]
-
             # create training set
             trX = np.concatenate((self.X[:fold*valSize], self.X[(fold+1)*valSize:]))
             trY = np.concatenate((self.y[:fold*valSize], self.y[(fold+1)*valSize:]))
+
+            #reshape data based only the training set
+            if outputProcessor is not None:
+                outputProcessor.reset(trY)
+                trY = outputProcessor.process(trY)
+                valy = outputProcessor.process(valy)
 
             # train
             trError, valError, trAccuracy, valAccuracy = self.nn.train(trX, trY, 
@@ -51,30 +58,31 @@ class Validator:
                                                 momentum=momentum,
                                                 lambdaRegularization=lambdaRegularization, 
                                                 patience=patience, 
-                                                tau=tau,
                                                 r_prop=r_prop,
-                                                accuracy=self.accuracy)
+                                                accuracy=self.accuracy,
+                                                printProgress=False
+                                                )
+            
+            trE, valE = self.computeError(outputProcessor, trX, trY, valX, valy)
             trainingErrorsList.append(trError)
             validationErrorsList.append(valError)
             trainingAccuracyList.append(trAccuracy)
             validationAccuracyList.append(valAccuracy)
 
-            trainingError += trError[-1]/k
-            validationError += valError[-1]/k
-            if trAccuracy is not None and valAccuracy is not None:
-                trainingAccuracy += trAccuracy[-1]/k
-                validationAccuracy += valAccuracy[-1]/k
-            # reset the network
-            self.nn.reset()
+            trainingError.append(trE)
+            validationError.append(valE)
+            if self.accuracy is not None:
+                trainingAccuracy.append(trAccuracy[-1])
+                validationAccuracy.append(valAccuracy[-1])
         
-        self.kfoldPlot(trainingErrorsList, validationErrorsList, trainingAccuracyList, validationAccuracyList)
+        if self.showPlot:
+            self.kfoldPlot(trainingErrorsList, validationErrorsList, trainingAccuracyList, validationAccuracyList)
 
-        # return the mean of the metrics
-
-        if trainingAccuracy == 0 and validationAccuracy == 0:
-            return np.mean(trainingError), np.mean(validationError), None, None
+        # return the mean and variance of the metrics
+        if self.accuracy is None:
+            return np.mean(trainingError), np.mean(validationError), np.std(trainingError), np.std(valError), None, None
         else:
-            return np.mean(trainingError), np.mean(validationError), np.mean(trainingAccuracy), np.mean(validationAccuracy)
+            return np.mean(trainingError), np.mean(validationError), None, None, np.mean(trainingAccuracy), np.mean(validationAccuracy)
         
 
     def kfoldPlot(self, trLoss:[list], valLoss:[list], trAcc:[list], valAcc:[list]):
@@ -99,4 +107,23 @@ class Validator:
             meanValAcc = np.mean(valAcc, axis=0)
             plot_data_error(meanTrAcc, meanValAcc, firstName="Tr_acc", secondName="Val_acc")
 
+    def computeError(self, dataProcessor:DataProcessor, trX, trY, valX, valY) -> (float, float):
+
+        y_predicted = self.nn.forward(trX)
+        if dataProcessor is not None:
+            y_expected = dataProcessor.deprocess(trY)
+            y_predicted = dataProcessor.deprocess(y_predicted)
+        else:
+            y_expected = trY
+        trError = self.loss(y_expected, y_predicted)
+        
+        y_predicted = self.nn.forward(valX)
+        if dataProcessor is not None:
+            y_expected = dataProcessor.deprocess(valY)
+            y_predicted = dataProcessor.deprocess(y_predicted)
+        else:
+            y_expected = valY
+        valError = self.loss(y_expected, y_predicted)
+
+        return trError, valError
 

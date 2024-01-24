@@ -8,8 +8,9 @@ from utilities import printProgressBar
 
 class NeuralNet:
 
-    def __init__(self, layers:[LayerDense]):
+    def __init__(self, layers:[LayerDense], name:str = "NeuralNet"):
         self.layers = layers # a list of layers
+        self.name = name
     
 
     def reset(self):
@@ -43,7 +44,7 @@ class NeuralNet:
                 self.layers[back_index].backward(self.layers[back_index+1].delta, learningRate, self.layers[back_index+1].weights, lambdaRegularization, momentum, r_prop)
 
 
-    def train(self, X, y, ValX = None, ValY = None, learningRate:LearningRate=LearningRate(0.01), epochs = 200, batch_size=-1, lambdaRegularization:float = 0, momentum:float = 0, patience:int = -1, r_prop:RProp|None = None, accuracy:callable = None) -> (list, list):
+    def train(self, X, y, ValX = None, ValY = None, learningRate:LearningRate=LearningRate(0.01), epochs = 200, batch_size=-1, lambdaRegularization:float = 0, momentum:float = 0, patience:int = -1, r_prop:RProp|None = None, accuracy:callable = None, printProgress=True) -> (list, list):
 
         trainingErrors = []
         validationErrors = []
@@ -54,7 +55,7 @@ class NeuralNet:
         if ValX is not None:
             self.update_metrics(ValX, ValY, LossMSE, accuracy, validationErrors, validationAccuracy)
 
-        print("Initial loss: ", trainingErrors[0])
+        if printProgress: print("Initial loss: ", trainingErrors[0])
         
         if batch_size==-1: # All samples at once (batch)
             if learningRate.__class__ == LearningRateLinearDecay:
@@ -66,13 +67,13 @@ class NeuralNet:
                     self.update_metrics(ValX, ValY, LossMSE, accuracy, validationErrors, validationAccuracy)
                 #trainingErrors.append(self.get_errors(X, y, LossMSE))
                 self.update_metrics(X, y, LossMSE, accuracy, trainingErrors, trainingAccuracy)
-                printProgressBar(epoch, epochs, prefix = 'Progress:', suffix = f'Loss : {trainingErrors[epoch+1]}', length = 50)
+                if printProgress: printProgressBar(epoch, epochs, prefix = 'Progress:', suffix = f'Loss : {trainingErrors[epoch+1]}', length = 50)
                 # check stopping criteria
                 if self.check_stopping_criteria(validationErrors, trainingErrors, lambdaRegularization, patience):
-                    print("\nEarly stopping at epoch: ", epoch)
+                    if printProgress: print("\nEarly stopping at epoch: ", epoch)
                     return trainingErrors, validationErrors, trainingAccuracy, validationAccuracy
 
-            printProgressBar(epochs, epochs, prefix = 'Progress:', suffix = f'Loss : {trainingErrors[epochs]}', length = 50)
+            if printProgress: printProgressBar(epochs, epochs, prefix = 'Progress:', suffix = f'Loss : {trainingErrors[epochs]}', length = 50)
             return trainingErrors, validationErrors, trainingAccuracy, validationAccuracy
 
         else: # Mini-batch, we can also do online training by setting batch_size=1
@@ -91,15 +92,14 @@ class NeuralNet:
                 if ValX is not None:
                     self.update_metrics(ValX, ValY, LossMSE, accuracy, validationErrors, validationAccuracy)
                 self.update_metrics(X, y, LossMSE, accuracy, trainingErrors, trainingAccuracy)
-                #if epoch % 10 == 0:
-                printProgressBar(epoch, epochs, prefix = 'Progress:', suffix = f'Loss : {trainingErrors[epoch+1]}', length = 50)
+                if printProgress: printProgressBar(epoch, epochs, prefix = 'Progress:', suffix = f'Loss : {trainingErrors[epoch+1]}', length = 50)
 
                 # check stopping criteria
                 if self.check_stopping_criteria(validationErrors, trainingErrors, lambdaRegularization, patience):
-                    print("\nEarly stopping at epoch: ", epoch)
+                    if printProgress: print("\nEarly stopping at epoch: ", epoch)
                     return trainingErrors, validationErrors, trainingAccuracy, validationAccuracy
                 
-            printProgressBar(epochs, epochs, prefix = 'Progress:', suffix = f'Loss : {trainingErrors[epochs]}', length = 50)
+            if printProgress: printProgressBar(epochs, epochs, prefix = 'Progress:', suffix = f'Loss : {trainingErrors[epochs]}', length = 50)
             return trainingErrors, validationErrors, trainingAccuracy, validationAccuracy
     
 
@@ -132,14 +132,11 @@ class NeuralNet:
                 raise Warning("You are using regularization but not patience, the training will not stop")
             return False
         if lambdaRegularization > 0:
-            if len(trainingErrors) < 10:
+            if len(trainingErrors) < patience:
                 return False
             #check if the training error is decreasing
             if trainingErrors[-1] < trainingErrors[-patience]*0.999:# improvements of at least 0.1%
                 return False
-            #print(f'E now: {trainingErrors[-1]}')
-            #print(f'E before: {trainingErrors[-patience]}')
-            #print(f'percentage: {trainingErrors[-1]/trainingErrors[-patience]}')
             return True
         
         elif patience > 0:
