@@ -13,9 +13,9 @@ class NeuralNet:
         self.name = name
     
 
-    def reset(self):
+    def reset(self, standardInit:bool = None):
         for layer in self.layers:
-            layer.reset()
+            layer.reset(standardInit)
 
 
     def forward(self, X) -> np.ndarray:
@@ -143,11 +143,11 @@ class NeuralNet:
             if len(validationErrors) < patience:
                 return False
             #check if the validation error is increasing
-            for i in range(len(validationErrors)-patience, len(validationErrors)):
-                raise Warning("You are using early stopping but this is not supported yet for validation set")
+            #for i in range(len(validationErrors)-patience, len(validationErrors)):
+                #raise Warning("You are using early stopping but this is not supported yet for validation set")
                 #print(validationErrors[i], validationErrors[i-1], validationErrors[i] < validationErrors[i-1])
-                if validationErrors[i] < validationErrors[i-1]: #if it is improving, we stop even if the validation error remains the same
-                    return False
+            if validationErrors[-1] < validationErrors[-patience]: #if it is improving, we stop even if the validation error remains the same
+                return False
             return True
         
         return False

@@ -14,7 +14,9 @@ class LayerDense:
         self.pastGradient_bias = 0
 
 
-    def reset(self):
+    def reset(self, standardInit:bool = None):
+        if standardInit is not None:
+            self.activationFunction.standardInit = standardInit
         self.weights = self.activationFunction.initialize_weights(self.weights.shape[0], self.weights.shape[1])
         self.bias = 0.05 * np.random.randn(self.bias.shape[0], self.bias.shape[1])
         self.pastGradient = np.zeros_like(self.weights)
