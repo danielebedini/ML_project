@@ -49,3 +49,12 @@ def accuracy_classifier_multiple_output(expectedOutputs, outputs):
         if np.argmax(expectedOutputs[i]) == np.argmax(outputs[i]):
             correct += 1
     return correct / len(expectedOutputs)
+
+def rSquare(expectedOutputs, outputs):
+    '''
+    this function calculates the R^2 coefficient of determination
+    expectedOutputs: the expected outputs of the activation function
+    outputs: the outputs of the activation function
+    '''
+    if outputs.shape[1] == 1: outputs = np.reshape(outputs, outputs.shape[0])
+    return 1 - np.sum((expectedOutputs - outputs) ** 2) / np.sum((expectedOutputs - np.mean(expectedOutputs)) ** 2)
