@@ -34,6 +34,8 @@ class Validator:
         validationAccuracy = []
 
         self.nn.reset()
+        # shuffle data
+        self.shuffleData()
 
         for fold in range(k):
             # create validation set
@@ -127,3 +129,8 @@ class Validator:
 
         return trError, valError
 
+    def shuffleData(self):
+        indexes = np.arange(len(self.X))
+        np.random.shuffle(indexes)
+        self.X = self.X[indexes]
+        self.y = self.y[indexes]
