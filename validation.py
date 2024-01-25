@@ -33,11 +33,11 @@ class Validator:
         trainingAccuracy = []
         validationAccuracy = []
 
-        self.nn.reset()
         # shuffle data
         self.shuffleData()
 
         for fold in range(k):
+            self.nn.reset()
             # create validation set
             valX = self.X[fold*valSize:(fold+1)*valSize]
             valy = self.y[fold*valSize:(fold+1)*valSize]
@@ -65,7 +65,7 @@ class Validator:
                                                 printProgress=False
                                                 )
             
-            trE, valE = self.computeError(outputProcessor, trX, trY, valX, valy)
+            trE, valE, trA, valA = self.computeMetrics(outputProcessor, trX, trY, valX, valy)
             trainingErrorsList.append(trError)
             validationErrorsList.append(valError)
             trainingAccuracyList.append(trAccuracy)
@@ -74,17 +74,17 @@ class Validator:
             trainingError.append(trE)
             validationError.append(valE)
             if self.accuracy is not None:
-                trainingAccuracy.append(trAccuracy[-1])
-                validationAccuracy.append(valAccuracy[-1])
+                trainingAccuracy.append(trA)
+                validationAccuracy.append(valA)
         
         if self.showPlot:
             self.kfoldPlot(trainingErrorsList, validationErrorsList, trainingAccuracyList, validationAccuracyList)
 
         # return the mean and variance of the metrics
         if self.accuracy is None:
-            return np.mean(trainingError), np.mean(validationError), np.std(trainingError), np.std(valError), None, None
+            return np.mean(trainingError), np.mean(validationError), np.std(trainingError), np.std(valError), None, None, None, None
         else:
-            return np.mean(trainingError), np.mean(validationError), None, None, np.mean(trainingAccuracy), np.mean(validationAccuracy)
+            return np.mean(trainingError), np.mean(validationError), np.std(trainingError), np.std(valError), np.mean(trainingAccuracy), np.mean(validationAccuracy), np.std(trainingAccuracy), np.std(validationAccuracy)
         
 
     def kfoldPlot(self, trLoss:[list], valLoss:[list], trAcc:[list], valAcc:[list]):
@@ -109,7 +109,7 @@ class Validator:
             meanValAcc = np.mean(valAcc, axis=0)
             plot_data_error(meanTrAcc, meanValAcc, firstName="Tr_acc", secondName="Val_acc")
 
-    def computeError(self, dataProcessor:DataProcessor, trX, trY, valX, valY) -> (float, float):
+    def computeMetrics(self, dataProcessor:DataProcessor, trX, trY, valX, valY) -> (float, float):
 
         y_predicted = self.nn.forward(trX)
         if dataProcessor is not None:
@@ -118,6 +118,10 @@ class Validator:
         else:
             y_expected = trY
         trError = self.loss(y_expected, y_predicted)
+        if self.accuracy is not None:
+            trAccuracy = self.accuracy(y_expected, y_predicted)
+        else:
+            trAccuracy = None
         
         y_predicted = self.nn.forward(valX)
         if dataProcessor is not None:
@@ -126,8 +130,12 @@ class Validator:
         else:
             y_expected = valY
         valError = self.loss(y_expected, y_predicted)
+        if self.accuracy is not None:
+            valAccuracy = self.accuracy(y_expected, y_predicted)
+        else:
+            valAccuracy = None
 
-        return trError, valError
+        return trError, valError, trAccuracy, valAccuracy
 
     def shuffleData(self):
         indexes = np.arange(len(self.X))
