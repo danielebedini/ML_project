@@ -1,6 +1,6 @@
 from activations import *
 from dataRescaling import DataProcessor
-from grid_search import grid_search_RProp, grid_search_momentum
+from grid_search import grid_search_RProp, grid_search_momentum, random_search_RProp
 from layers import LayerDense
 from learningRate import LearningRate
 from metrics import MEE, LossMSE, rSquare
@@ -55,7 +55,7 @@ grid_search_RProp(X, y, 10,
                   }
 )
 '''
-
+'''
 grid_search_momentum(X, y, 10,
                     {
                             'epochs': 4000,
@@ -66,6 +66,19 @@ grid_search_momentum(X, y, 10,
                             'lambdaRegularization': [0.0007, 0.0008, 0.0009, 0.001],
                             'preprocess': ['standardize'],
                             'standardInit': [True, False]
+                    }
+    )
+'''
+random_search_RProp(X, y, 10, 400,
+                    {
+                        'epochs': 500,
+                        'model': [nn_cup1, nn_cup2, nn_cup3],
+                        'delta_0': lambda: np.random.uniform(0.01, 0.1),
+                        'delta_max': lambda: np.random.uniform(10, 20),
+                        'lambdaRegularization': lambda: np.random.uniform(0.0008, 0.001),
+                        'patience': lambda: np.random.randint(5, 13),
+                        'preprocess': ['standardize', 'normalize', None],
+                        'standardInit': [True, False]
                     }
     )
 exit()
