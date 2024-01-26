@@ -3,6 +3,7 @@ import numpy as np
 
 name = 'grid_search_results_RProp.json'
 name2 = 'grid_search_results_momentum.json'
+name3 = 'random_search_results_RProp.json'
 
 chosen = name2
 
@@ -14,7 +15,7 @@ file.close()
 #   x['valE']
 top = sorted(results, key=lambda x: x['valE'])[:20]
 
-if chosen == name:
+if chosen == name or chosen == name3:
     for i in range(len(top)):
         print(f"val MEE: {'%.4f' % top[i]['valE']} +/- {'%.4f' % top[i]['valErrDev']} | \
 val R^2: {'%.4f' % top[i]['valA']} +/- {'%.4f' % top[i]['valAccDev']} | \
