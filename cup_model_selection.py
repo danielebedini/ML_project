@@ -69,6 +69,7 @@ grid_search_momentum(X, y, 10,
                     }
     )
 '''
+
 random_search_RProp(X, y, 10, 400,
                     {
                         'epochs': 500,
@@ -77,10 +78,11 @@ random_search_RProp(X, y, 10, 400,
                         'delta_max': lambda: np.random.uniform(10, 20),
                         'lambdaRegularization': lambda: np.random.uniform(0.0008, 0.001),
                         'patience': lambda: np.random.randint(5, 13),
-                        'preprocess': ['standardize', 'normalize', None],
+                        'preprocess': ['standardize', 'normalize'],
                         'standardInit': [True, False]
                     }
     )
+
 exit()
 validator = Validator(nn_cup3, X, y, MEE, rSquare, showPlot=True)#important: use MEE as loss function
 trErr, valErr, trErrDev, valErrDev, trAcc, valAcc, trAccDev, valAccDev = validator.kfold(k=2,

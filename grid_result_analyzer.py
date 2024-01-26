@@ -5,17 +5,17 @@ name = 'grid_search_results_RProp.json'
 name2 = 'grid_search_results_momentum.json'
 name3 = 'random_search_results_RProp.json'
 
-chosen = name2
+chosen = name3
 
 file = open(chosen, 'r')
-results = json.load(file)[1]
+results = json.load(file)
 file.close()
 
 #   x['valErrDev']
 #   x['valE']
-top = sorted(results, key=lambda x: x['valE'])[:20]
+top = sorted(results, key=lambda x: x['valE']*1.0 + x['valErrDev']*0.0)[:90]
 
-if chosen == name or chosen == name3:
+if chosen == name:
     for i in range(len(top)):
         print(f"val MEE: {'%.4f' % top[i]['valE']} +/- {'%.4f' % top[i]['valErrDev']} | \
 val R^2: {'%.4f' % top[i]['valA']} +/- {'%.4f' % top[i]['valAccDev']} | \
@@ -26,6 +26,21 @@ lambda: {top[i]['lambdaRegularization']} | \
 delta_max: {top[i]['delta_max']} | \
 delta_0: {top[i]['delta_0']} | \
 standardInit: {top[i]['standardInit']} | \
+model: {top[i]['model']}\
+")
+
+elif chosen == name3:
+    for i in range(len(top)):
+        print(f"v MEE: {'%.4f' % top[i]['valE']} +/- {'%.4f' % top[i]['valErrDev']} | \
+v R^2: {'%.4f' % top[i]['valA']} +/- {'%.4f' % top[i]['valAccDev']} | \
+t MEE: {'%.4f' % top[i]['trE']} +/- {'%.4f' % top[i]['trErrDev']} | \
+t R^2: {'%.4f' % top[i]['trA']} +/- {'%.4f' % top[i]['trAccDev']} | \
+preprocess: {top[i]['preprocess']} | \
+lambda: {top[i]['lambdaRegularization']} | \
+patience: {top[i]['patience']} | \
+delta_max: {top[i]['delta_max']} | \
+delta_0: {top[i]['delta_0']} | \
+init: {top[i]['standardInit']} | \
 model: {top[i]['model']}\
 ")
         

@@ -199,7 +199,8 @@ def random_search_RProp(X:np.ndarray, y:np.ndarray, folds:int, iterations:int , 
             preprocessor = DataProcessor(y, normalize=True, independentColumns=True)
         else:
             preprocessor = None
-        model.reset(standardInit=np.random.choice(hyperParameters['standardInit']))
+        standardInit=np.random.choice(hyperParameters['standardInit'])
+        model.reset(standardInit=standardInit)
         reg = hyperParameters['lambdaRegularization']()
         patience = hyperParameters['patience']()
         delta_0 = hyperParameters['delta_0']()
@@ -212,12 +213,18 @@ def random_search_RProp(X:np.ndarray, y:np.ndarray, folds:int, iterations:int , 
                                                                                         r_prop=RProp(delta_0=delta_0, delta_max=delta_max),
                                                                                         outputProcessor=preprocessor
                                                                                         )
+        if standardInit:
+            standardInit = 'True'
+        else:
+            standardInit = 'False'
         results = {
                 'model': model.name,
                 'delta_0': delta_0,
                 'delta_max': delta_max,
                 'lambdaRegularization': reg,
                 'preprocess': preprocess,
+                'patience': patience,
+                'standardInit': standardInit,
                 'trE': trE,
                 'valE': valE,
                 'trErrDev': trErrDev,
