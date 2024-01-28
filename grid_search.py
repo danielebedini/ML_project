@@ -10,7 +10,7 @@ from validation import Validator
 from utilities import printProgressBar
 
 
-def grid_search_RProp(X:np.ndarray, y:np.ndarray, folds:int, hyperParameters:{str:list}):
+def grid_search_RProp(X:np.ndarray, y:np.ndarray, folds:int, hyperParameters:{str:list}, savefile:str = 'grid_search_results_RProp.json'):
     '''
     data: the data to be used for the grid search
     folds: the number of folds for the kfold validation
@@ -26,66 +26,64 @@ def grid_search_RProp(X:np.ndarray, y:np.ndarray, folds:int, hyperParameters:{st
     results = []
     i = 1
     startTime = time.time()
-    file = open('grid_search_results_RProp.json', 'a')
+    file = open(savefile, 'a')
     file.write('[\n')
     file.close()
-    totIterations = len(hyperParameters['model'])*len(hyperParameters['delta_0'])*len(hyperParameters['delta_max'])*len(hyperParameters['lambdaRegularization'])*len(hyperParameters['preprocess'])*len(hyperParameters['standardInit'])
+    totIterations = len(hyperParameters['model'])*len(hyperParameters['delta_0'])*len(hyperParameters['delta_max'])*len(hyperParameters['lambdaRegularization'])*len(hyperParameters['preprocess'])*len(hyperParameters['standardInit']*len(hyperParameters['patience']))
     printProgressBar(i, totIterations, prefix = 'Progress:', suffix = 'ETA -m -s', length = 50)
     for model in hyperParameters['model']:
         validator = Validator(model, X, y, MEE, rSquare, showPlot=False)
         for d0 in hyperParameters['delta_0'] if 'delta_0' in hyperParameters else [0.1]:
             for dm in hyperParameters['delta_max'] if 'delta_max' in hyperParameters else [50]:
                 for reg in hyperParameters['lambdaRegularization'] if 'lambdaRegularization' in hyperParameters else [0]:
-                    if reg > 0:
-                        patience = 10
-                    else:
-                        patience = -1
-                    for preprocess in hyperParameters['preprocess'] if 'preprocess' in hyperParameters else [None]:
-                        if preprocess is not None:
-                            if preprocess == 'standardize':
-                                preprocessor = DataProcessor(y, standardize=True, independentColumns=True)
-                            elif preprocess == 'normalize':
-                                preprocessor = DataProcessor(y, normalize=True, independentColumns=True)
-                            else:
-                                preprocessor = None
-                        for standardInit in hyperParameters['standardInit'] if 'standardInit' in hyperParameters else [False]:
-                            model.reset(standardInit=standardInit)
-                            trE, valE, trErrDev, valErrDev, trA, valA, trAccDev, valAccDev = validator.kfold(k=folds,
-                                                                                                        epochs=hyperParameters['epochs'],
-                                                                                                        lambdaRegularization=reg,
-                                                                                                        patience=patience,
-                                                                                                        r_prop=RProp(delta_0=d0, delta_max=dm),
-                                                                                                        outputProcessor=preprocessor
-                                                                                                        )
-                            results = {
-                                    'model': model.name,
-                                    'standardInit': standardInit,
-                                    'delta_0': d0,
-                                    'delta_max': dm,
-                                    'lambdaRegularization': reg,
-                                    'preprocess': preprocess,
-                                    'trE': trE,
-                                    'valE': valE,
-                                    'trErrDev': trErrDev,
-                                    'valErrDev': valErrDev,
-                                    'trA': trA,
-                                    'valA': valA,
-                                    'trAccDev': trAccDev,
-                                    'valAccDev': valAccDev
-                                }
-                            i += 1
-                            currTime = time.time()
-                            elapsedTime = currTime - startTime
-                            eta = elapsedTime/i*(totIterations-i)
-                            minutes = int(eta/60)
-                            seconds = int(eta%60)
-                            file = open('grid_search_results_RProp.json', 'a')
-                            printProgressBar(i, totIterations, prefix = 'Progress:', suffix = f'ETA {minutes}m {seconds}s  ', length = 50)
-                            file.write(json.dumps(results, indent=4))
-                            if i != totIterations + 1:
-                                file.write(',\n')
-                            file.close()
-    file = open('grid_search_results_RProp.json', 'a')
+                    for patience in hyperParameters['patience'] if 'patience' in hyperParameters else [-1]:
+                        for preprocess in hyperParameters['preprocess'] if 'preprocess' in hyperParameters else [None]:
+                            if preprocess is not None:
+                                if preprocess == 'standardize':
+                                    preprocessor = DataProcessor(y, standardize=True, independentColumns=True)
+                                elif preprocess == 'normalize':
+                                    preprocessor = DataProcessor(y, normalize=True, independentColumns=True)
+                                else:
+                                    preprocessor = None
+                            for standardInit in hyperParameters['standardInit'] if 'standardInit' in hyperParameters else [False]:
+                                model.reset(standardInit=standardInit)
+                                trE, valE, trErrDev, valErrDev, trA, valA, trAccDev, valAccDev = validator.kfold(k=folds,
+                                                                                                            epochs=hyperParameters['epochs'],
+                                                                                                            lambdaRegularization=reg,
+                                                                                                            patience=patience,
+                                                                                                            r_prop=RProp(delta_0=d0, delta_max=dm),
+                                                                                                            outputProcessor=preprocessor
+                                                                                                            )
+                                results = {
+                                        'model': model.name,
+                                        'standardInit': standardInit,
+                                        'delta_0': d0,
+                                        'delta_max': dm,
+                                        'lambdaRegularization': reg,
+                                        'preprocess': preprocess,
+                                        'patience': patience,
+                                        'trE': trE,
+                                        'valE': valE,
+                                        'trErrDev': trErrDev,
+                                        'valErrDev': valErrDev,
+                                        'trA': trA,
+                                        'valA': valA,
+                                        'trAccDev': trAccDev,
+                                        'valAccDev': valAccDev
+                                    }
+                                i += 1
+                                currTime = time.time()
+                                elapsedTime = currTime - startTime
+                                eta = elapsedTime/i*(totIterations-i)
+                                minutes = int(eta/60)
+                                seconds = int(eta%60)
+                                file = open(savefile, 'a')
+                                printProgressBar(i, totIterations, prefix = 'Progress:', suffix = f'ETA {minutes}m {seconds}s  ', length = 50)
+                                file.write(json.dumps(results, indent=4))
+                                if i != totIterations + 1:
+                                    file.write(',\n')
+                                file.close()
+    file = open(savefile, 'a')
     file.write('\n]')
     file.close()
 
@@ -171,7 +169,7 @@ def grid_search_momentum(X:np.ndarray, y:np.ndarray, folds:int, hyperParameters:
     file.write('\n]')
     file.close()
     
-def random_search_RProp(X:np.ndarray, y:np.ndarray, folds:int, iterations:int , hyperParameters:{str:list}):
+def random_search_RProp(X:np.ndarray, y:np.ndarray, folds:int, iterations:int , hyperParameters:{str:list}, savefile:str = 'random_search_results_RProp.json'):
     '''
     data: the data to be used for the grid search
     folds: the number of folds for the kfold validation
@@ -187,7 +185,7 @@ def random_search_RProp(X:np.ndarray, y:np.ndarray, folds:int, iterations:int , 
     results = []
     i = 1
     startTime = time.time()
-    file = open('random_search_results_RProp.json', 'a')
+    file = open(savefile, 'a')
     file.write('[\n')
     file.close()
     for _ in range(iterations):
@@ -240,13 +238,13 @@ def random_search_RProp(X:np.ndarray, y:np.ndarray, folds:int, iterations:int , 
         eta = elapsedTime/i*(iterations-i)
         minutes = int(eta/60)
         seconds = int(eta%60)
-        file = open('random_search_results_RProp.json', 'a')
+        file = open(savefile, 'a')
         printProgressBar(i, iterations, prefix = 'Progress:', suffix = f'ETA {minutes}m {seconds}s  ', length = 50)
         file.write(json.dumps(results, indent=4))
         if i != iterations + 1:
             file.write(',\n')
         file.close()
-    file = open('random_search_results_RProp.json', 'a')
+    file = open(savefile, 'a')
     file.write('\n]')
     file.close()
 
