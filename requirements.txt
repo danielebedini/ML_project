@@ -1,0 +1,4 @@
+python>=3.10.0 # IMPORTANT for updated syntax in net.py and layers.py
+matplotlib>=3.8.0
+numpy>=1.26.0
+tensorflow>=2.15.0 # optional, only if you want to execute the file monkModels/monk_twin_tf.py
