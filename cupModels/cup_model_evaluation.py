@@ -44,7 +44,7 @@ _, _, train, valid = nn_cup1.train(X, y,
                              epochs=20000,
                              lambdaRegularization=0.00001,
                              accuracy=mean_euclidean_error,
-                             r_prop=RProp(delta_0=0.09, delta_max=100, eta_plus=1.2), 
+                             r_prop=RProp(delta_0=0.09, delta_max=50, eta_plus=1.2), 
                              #accuracy=rSquare, 
                              printProgress=True)
 

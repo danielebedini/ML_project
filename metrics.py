@@ -8,8 +8,7 @@ def LossMSE(expectedOutputs, outputs):
     outputs: the outputs of the activation function
     '''
     if outputs.shape[1] == 1: outputs = np.reshape(outputs, outputs.shape[0])
-    return np.sum((expectedOutputs - outputs) ** 2) / expectedOutputs.size
-
+    return np.mean(np.square(outputs - expectedOutputs))
 
 def MEE(expectedOutputs, outputs):
     '''
