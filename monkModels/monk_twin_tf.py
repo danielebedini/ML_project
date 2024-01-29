@@ -31,7 +31,7 @@ print("Initial Accuracy: ", accuracy(y, y_predicted))
 
 hystory = model.fit(X, y, epochs=60, batch_size=10, verbose=0)
 
-plot_data_error(hystory.history['loss'], hystory.history['loss'])
+plot_data_error(hystory.history['loss'], [], "Loss", "")
 
 #accuracy after training
 y_predicted = model.predict(X)
