@@ -5,7 +5,7 @@ from dataRescaling import DataProcessor
 from grid_search import grid_search_RProp, grid_search_momentum, random_search_RProp
 from layers import LayerDense
 from learningRate import LearningRate
-from metrics import MEE, LossMSE, rSquare
+from metrics import MEE, LossMSE, mean_euclidean_error, rSquare
 from net import NeuralNet
 from r_prop_parameter import RProp
 from utilities import plot_data_error, readTrainingCupData
@@ -32,16 +32,20 @@ nn_cup1 = NeuralNet([LayerDense(10, 30, ActivationTanH()),
                     name="tanH_30_15_3")
 
 nn_cup1.reset(standardInit=False)
+
+start = time.time()
 _, _, train, valid = nn_cup1.train(X, y, 
                              ValX = valX, ValY = valY, 
-                             patience=9,
-                             epochs=1500,
-                             lambdaRegularization=0.00027,
-                             accuracy=MEE,
-                             r_prop=RProp(delta_0=0.09, delta_max=10), 
+                             #patience=9,
+                             epochs=1000,
+                             #lambdaRegularization=0.00027,
+                             accuracy=mean_euclidean_error,
+                             r_prop=RProp(delta_0=0.09, delta_max=50), 
                              #accuracy=rSquare, 
                              printProgress=True)
 
+end = time.time()
+print("Training time: ", end-start)
 plot_data_error(train, valid, "train", "val")
 
 expected = normalizer.deprocess(y)

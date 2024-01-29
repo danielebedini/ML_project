@@ -17,8 +17,14 @@ def MEE(expectedOutputs, outputs):
     expectedOutputs: the expected outputs of the activation function
     outputs: the outputs of the activation function
     '''
-    if outputs.shape[1] == 1: outputs = np.reshape(outputs, outputs.shape[0])
-    return np.sum(np.sqrt(np.sum((expectedOutputs - outputs) ** 2))) / expectedOutputs.shape[0]
+    #if outputs.shape[1] == 1: outputs = np.reshape(outputs, outputs.shape[0])
+    return np.mean(np.sqrt(np.sum((expectedOutputs - outputs) ** 2, axis=1)))
+
+def mean_euclidean_error(targets, outputs):
+    # Calculate the Euclidean distances for each pair of corresponding target and output vectors
+    distances = np.sqrt(np.sum(np.square(targets - outputs), axis=1))
+    # Calculate the mean of these distances
+    return np.mean(distances)
 
 
 def accuracy_classifier_single_output(expectedOutputs, outputs):
