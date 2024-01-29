@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.join(sys.path[0], '..'))
+
 from threading import Thread
 import time
 from activations import *
@@ -36,11 +40,11 @@ nn_cup1.reset(standardInit=False)
 start = time.time()
 _, _, train, valid = nn_cup1.train(X, y, 
                              ValX = valX, ValY = valY, 
-                             #patience=9,
-                             epochs=1000,
-                             #lambdaRegularization=0.00027,
+                             patience=9,
+                             epochs=20000,
+                             lambdaRegularization=0.00001,
                              accuracy=mean_euclidean_error,
-                             r_prop=RProp(delta_0=0.09, delta_max=50), 
+                             r_prop=RProp(delta_0=0.09, delta_max=100, eta_plus=1.2), 
                              #accuracy=rSquare, 
                              printProgress=True)
 
@@ -55,6 +59,7 @@ expected = normalizer.deprocess(valY)
 predicted = normalizer.deprocess(nn_cup1.forward(valX))
 print("val MEE: ", MEE(predicted, expected))
 
+exit()
 #show some predictions
 for i in range(10):
     print("expected: ", expected[i], "predicted: ", predicted[i])

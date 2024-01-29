@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.join(sys.path[0], '..'))
+
 import numpy as np
 from layers import *
 from activations import *
