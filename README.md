@@ -14,6 +14,18 @@ Once you have selected the model and the dataset, you can run the following comm
 ```
 python [folder of the model]/model_name.py
 ```
+monk network:
+```
+python monkModels/monk_1_net.py
+```
+monk kfold:
+```
+python monkModels/monk_1_kfold.py
+```
+cup blind test:
+```
+python cupModels/cup_model_blind_test.py
+```
 In the *utilities.py* file you can find all the other utility methods such as one hot encoding, methods for the plots and a method to print the progress bar.
 
 ## Other notes
