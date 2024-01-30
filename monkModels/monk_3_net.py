@@ -30,7 +30,6 @@ trError, valError, trAccuracy, valAccuracy = monkModel.train(X, y, epochs=100, r
 y_predicted = monkModel.forward(X)
 print("Training Accuracy: ", accuracy(y, y_predicted))
 print("Training MSE: ", LossMSE(y, y_predicted))
-print("Training MEE: ", MEE(y, y_predicted))
 
 #check test error
 X, y = readMonkData(f"data/monk/monks-{monk_num}.test")
@@ -38,7 +37,6 @@ X = feature_one_hot_encoding(X, [3,3,2,3,4,2])
 y_predicted = monkModel.forward(X)
 print("Test Accuracy our baby: ", accuracy(y, y_predicted))
 print("Test MSE: ", LossMSE(y, y_predicted))
-print("Test MEE: ", MEE(y, y_predicted))
 
 import matplotlib.pyplot as plt
 plt.plot(trError, label="Training error")
