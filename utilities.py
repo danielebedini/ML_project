@@ -44,6 +44,16 @@ def readTrainingCupData(filename:str) -> (np.ndarray, np.ndarray):
             output.append(values[-3:])
     return np.array(input), np.array(output)
 
+def readTestCupData(filename:str) -> np.ndarray:
+    input = []
+    with open(filename, 'r') as file:
+        for line in file:
+            if line.startswith('#'): continue
+            values = list(map(float, line.split(',')[1:]))
+            input.append(values)
+    return input
+
+
 
 def feature_one_hot_encoding(y:np.ndarray, classes:[int]) -> np.ndarray:
     '''
