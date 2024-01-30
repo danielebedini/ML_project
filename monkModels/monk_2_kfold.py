@@ -24,13 +24,16 @@ X = feature_one_hot_encoding(X, [3,3,2,3,4,2])
 #y = standard_one_hot_encoding(y, 2)
 
 nn = NeuralNet([LayerDense(17, 4, ActivationTanH()),
-                LayerDense(4, 4, ActivationTanH()),
                 LayerDense(4, 1, ActivationTanH())])
 
 validator = Validator(nn, X, y, LossMSE, accuracy_classifier_single_output)
 
 
-trainingErrors, validationErrors, trAccuracy, valAccuracy, _, _, _, _ = validator.kfold(k=10, epochs=100, learningRate=LearningRate(0.02), momentum=0.95, batch_size=10)
+trainingErrors, validationErrors, _, _, trAccuracy, valAccuracy, _, _ = validator.kfold(k=10, 
+                                                                                        epochs=100, 
+                                                                                        learningRate=LearningRate(0.02), 
+                                                                                        momentum=0.95, 
+                                                                                        batch_size=10)
 
 
 print("*********************")

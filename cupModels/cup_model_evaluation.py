@@ -1,19 +1,13 @@
 import sys
 import os
+
 sys.path.append(os.path.join(sys.path[0], '..'))
 
-from threading import Thread
 import time
-from activations import *
-from dataRescaling import DataProcessor
-from grid_search import grid_search_RProp, grid_search_momentum, random_search_RProp
-from layers import LayerDense
-from learningRate import LearningRate
-from metrics import MEE, LossMSE, mean_euclidean_error, rSquare
-from net import NeuralNet
-from r_prop_parameter import RProp
-from utilities import plot_data_error, readTrainingCupData
-from validation import Validator
+import numpy as np
+from metrics import MEE
+from cupModels.cup_model_generate import Ensemble
+from utilities import readTrainingCupData
 
 X, y = readTrainingCupData("data/cup/ML-CUP23-TR.csv")
 
@@ -21,45 +15,22 @@ X, y = readTrainingCupData("data/cup/ML-CUP23-TR.csv")
 X = X[:int(len(X)*0.75)] #WARNING: do not touch this line
 y = y[:int(len(y)*0.75)] #WARNING: do not touch this line
 
-
-normalizer = DataProcessor(y, standardize=True, independentColumns=True)
-y = normalizer.process(y)
-valX = X[int(len(X)*0.75):]
-valY = y[int(len(y)*0.75):]
-X = X[:int(len(X)*0.75)]
-y = y[:int(len(y)*0.75)]
-
-nn_cup1 = NeuralNet([LayerDense(10, 30, ActivationTanH()),
-                    LayerDense(30, 15, ActivationTanH()),
-                    LayerDense(15, 3, ActivationLinear())
-                    ],
-                    name="tanH_30_15_3")
-
-nn_cup1.reset(standardInit=False)
+testX = X[int(len(X)*0.75):]
+testY = y[int(len(y)*0.75):]
 
 start = time.time()
-_, _, train, valid = nn_cup1.train(X, y, 
-                             ValX = valX, ValY = valY, 
-                             patience=9,
-                             epochs=20000,
-                             lambdaRegularization=0.00001,
-                             accuracy=mean_euclidean_error,
-                             r_prop=RProp(delta_0=0.09, delta_max=50, eta_plus=1.2), 
-                             #accuracy=rSquare, 
-                             printProgress=True)
+
+ensembles = []
+for i in range(10):
+    ensembles.append(Ensemble(X, y, 10))
 
 end = time.time()
 print("Training time: ", end-start)
-plot_data_error(train, valid, "train", "val")
 
-expected = normalizer.deprocess(y)
-predicted = normalizer.deprocess(nn_cup1.forward(X))
-print("tr  MEE: ", MEE(predicted, expected))
-expected = normalizer.deprocess(valY)
-predicted = normalizer.deprocess(nn_cup1.forward(valX))
-print("val MEE: ", MEE(predicted, expected))
+testErrors = []
+for ensemble in ensembles:
+    testErrors.append(MEE(testY, ensemble.predict(testX)))
 
-exit()
-#show some predictions
-for i in range(10):
-    print("expected: ", expected[i], "predicted: ", predicted[i])
+print("Test errors: ", testErrors)
+print("Average test error: ", np.mean(testErrors))
+print("Test error standard deviation: ", np.std(testErrors))

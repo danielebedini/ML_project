@@ -7,6 +7,8 @@ sys.path.append(os.path.join(sys.path[0], '..'))
 ################# tensorflow ##################
 ###############################################
 
+#NOTE: this is a file that we used while imlementing our network to see if we 
+# were on the right track. It is not used in the final report.
 from keras.models import Sequential
 from keras.layers import Dense  
 from keras.optimizers import Adam

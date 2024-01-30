@@ -96,7 +96,7 @@ class Validator:
             while len(trLoss[i]) < maxSize:
                 trLoss[i] = np.append(trLoss[i], trLoss[i][-1])
                 valLoss[i] = np.append(valLoss[i], valLoss[i][-1])
-                if trAcc is not None and valAcc is not None:
+                if self.accuracy is not None:
                     trAcc[i] = np.append(trAcc[i], trAcc[i][-1])
                     valAcc[i] = np.append(valAcc[i], valAcc[i][-1])
 
@@ -104,7 +104,7 @@ class Validator:
         meanValLoss = np.mean(valLoss, axis=0)
         plot_data_error(meanTrLoss, meanValLoss, firstName="Tr_loss", secondName="Val_loss")
 
-        if trAcc is not None and valAcc is not None:
+        if self.accuracy is not None:
             meanTrAcc = np.mean(trAcc, axis=0)
             meanValAcc = np.mean(valAcc, axis=0)
             plot_data_error(meanTrAcc, meanValAcc, firstName="Tr_acc", secondName="Val_acc")

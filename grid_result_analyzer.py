@@ -5,9 +5,9 @@ printFormat = 1
 folder = "hyperParSearch/"
 
 names = []
-for i in range(1, 4):
-    names.append(f"{folder}nn_cup{i}.json")
-names = [f'{folder}grid_2_nn_cup{1}.json']
+for i in range(1, 5):
+    names.append(f"{folder}grid_2_nn_cup{i}.json")
+#names = [f'{folder}grid_2_nn_cup{1}.json']
 results = []
 for i in names:
     randResults = []
@@ -17,7 +17,7 @@ for i in names:
 
 #   x['valErrDev']
 #   x['valE']
-top = sorted(results, key=lambda x: x['valE']*1.0 + x['valErrDev']*0 + x['lambdaRegularization'])[:10]
+top = sorted(results, key=lambda x: x['valE']*1.0 + x['valErrDev']*0.0 + x['lambdaRegularization']*0)[:3]
 
 #val R^2: {'%.4f' % top[i]['valA']} +/- {'%.4f' % top[i]['valAccDev']} | \
 #tr R^2: {'%.4f' % top[i]['trA']} +/- {'%.4f' % top[i]['trAccDev']} | \
@@ -38,7 +38,7 @@ elif printFormat == 1:
         print(f"v MEE: {'%.4f' % top[i]['valE']} +/- {'%.4f' % top[i]['valErrDev']} | \
 t MEE: {'%.4f' % top[i]['trE']} +/- {'%.4f' % top[i]['trErrDev']} | \
 preprocess: {top[i]['preprocess']} | \
-lambda: {'%.5f' % top[i]['lambdaRegularization']} | \
+lambda: {'%.6f' % top[i]['lambdaRegularization']} | \
 patience: {top[i]['patience']} | \
 delta_max: {'%.1f' % top[i]['delta_max']} | \
 delta_0: {'%.4f' % top[i]['delta_0']} | \

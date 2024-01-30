@@ -30,7 +30,11 @@ nn = NeuralNet([LayerDense(17, 4, ActivationTanH()),
 validator = Validator(nn, X, y, LossMSE, accuracy_classifier_single_output)
 
 
-trainingErrors, validationErrors, trAccuracy, valAccuracy, _, _, _, _ = validator.kfold(k=10, epochs=100, learningRate=LearningRate(0.02), momentum=0.95, batch_size=10)
+trainingErrors, validationErrors, _, _, trAccuracy, valAccuracy, _, _ = validator.kfold(k=10, 
+                                                                                        epochs=100, 
+                                                                                        learningRate=LearningRate(0.02), 
+                                                                                        momentum=0.95, 
+                                                                                        batch_size=10)
 
 
 print("*********************")
