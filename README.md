@@ -9,5 +9,6 @@ For saving space, we did not include the dataset that we used. If you want to us
 
 Once you have selected the model and the dataset, you can runthe following commands:
 ```
-python [folder of the model]/model.py
+python [folder of the model]/model_name.py
 ```
+In the utilities.py file you can find all the other utility methods such as one hot encoding and methods for the plots.
