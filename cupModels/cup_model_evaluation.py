@@ -2,18 +2,14 @@ import sys
 import os
 sys.path.append(os.path.join(sys.path[0], '..'))
 
-from threading import Thread
 import time
 from activations import *
 from dataRescaling import DataProcessor
-from grid_search import grid_search_RProp, grid_search_momentum, random_search_RProp
 from layers import LayerDense
-from learningRate import LearningRate
-from metrics import MEE, LossMSE, mean_euclidean_error, rSquare
+from metrics import MEE
 from net import NeuralNet
 from r_prop_parameter import RProp
 from utilities import plot_data_error, readTrainingCupData
-from validation import Validator
 
 X, y = readTrainingCupData("data/cup/ML-CUP23-TR.csv")
 
@@ -21,43 +17,73 @@ X, y = readTrainingCupData("data/cup/ML-CUP23-TR.csv")
 X = X[:int(len(X)*0.75)] #WARNING: do not touch this line
 y = y[:int(len(y)*0.75)] #WARNING: do not touch this line
 
+testX = X[int(len(X)*0.75):]
+testY = y[int(len(y)*0.75):]
 
-normalizer = DataProcessor(y, standardize=True, independentColumns=True)
-y = normalizer.process(y)
-valX = X[int(len(X)*0.75):]
-valY = y[int(len(y)*0.75):]
-X = X[:int(len(X)*0.75)]
-y = y[:int(len(y)*0.75)]
 
-nn_cup1 = NeuralNet([LayerDense(10, 30, ActivationTanH()),
-                    LayerDense(30, 15, ActivationTanH()),
-                    LayerDense(15, 3, ActivationLinear())
+def generateGoodModel(trainingData:np.ndarray, trainingLabels:np.ndarray) -> NeuralNet:
+
+    trainingLabelsCopy = trainingLabels.copy()
+    standardizer = DataProcessor(trainingLabelsCopy, standardize=True, independentColumns=True)
+    trainingLabelsCopy = standardizer.process(trainingLabelsCopy)
+
+    nn = NeuralNet([LayerDense(10, 30, ActivationTanH(True)),
+                    LayerDense(30, 15, ActivationTanH(True)),
+                    LayerDense(15, 3, ActivationLinear(True))
                     ],
                     name="tanH_30_15_3")
+    while True:
+        nn.reset()
+        _, _, trainingErrors, _ = nn.train(trainingData, trainingLabelsCopy,
+                                            epochs=4000,
+                                            lambdaRegularization=0.000013,
+                                            patience=10,
+                                            accuracy=MEE,
+                                            r_prop=RProp(delta_0=0.07, delta_max=50),
+                                            )
 
-nn_cup1.reset(standardInit=False)
+        trainingError = MEE(trainingLabels, standardizer.deprocess(nn.forward(trainingData)))
+        if trainingError < 0.65: #avoid considering underfitting models
+            if len(trainingErrors) < 4000: #if the model did not converge, reject it
+                return nn
+        print("rejected model, training error: ", trainingError, "training epoch: ", len(trainingErrors))
+
+class Ensemble:
+    def __init__(self, trainingData:np.ndarray, trainingLabels:np.ndarray, ensembleSize:int):
+        self.outputStandardizer = DataProcessor(trainingLabels, standardize=True, independentColumns=True)
+        self.models = []
+        self.createEnsemble(trainingData, trainingLabels, ensembleSize)
+
+    def createEnsemble(self, trainingData:np.ndarray, trainingLabels:np.ndarray, ensembleSize:int) -> list:
+        for i in range(ensembleSize):
+            self.models.append(generateGoodModel(trainingData, trainingLabels))
+    
+    def predict(self, input:np.ndarray) -> np.ndarray:
+        predictions = []
+        for model in self.models:
+            predictions.append(model.forward(input))
+        predictions = np.array(predictions)
+        predictions = np.mean(predictions, axis=0)
+        predictions = self.outputStandardizer.deprocess(predictions)
+        return predictions
 
 start = time.time()
-_, _, train, valid = nn_cup1.train(X, y, 
-                             ValX = valX, ValY = valY, 
-                             patience=9,
-                             epochs=20000,
-                             lambdaRegularization=0.00001,
-                             accuracy=mean_euclidean_error,
-                             r_prop=RProp(delta_0=0.09, delta_max=50, eta_plus=1.2), 
-                             #accuracy=rSquare, 
-                             printProgress=True)
+
+ensembles = []
+for i in range(10):
+    ensembles.append(Ensemble(X, y, 10))
 
 end = time.time()
 print("Training time: ", end-start)
-plot_data_error(train, valid, "train", "val")
 
-expected = normalizer.deprocess(y)
-predicted = normalizer.deprocess(nn_cup1.forward(X))
-print("tr  MEE: ", MEE(predicted, expected))
-expected = normalizer.deprocess(valY)
-predicted = normalizer.deprocess(nn_cup1.forward(valX))
-print("val MEE: ", MEE(predicted, expected))
+testErrors = []
+for ensemble in ensembles:
+    testErrors.append(MEE(testY, ensemble.predict(testX)))
+
+print("Test errors: ", testErrors)
+print("Average test error: ", np.mean(testErrors))
+print("Test error standard deviation: ", np.std(testErrors))
+
 
 exit()
 #show some predictions
