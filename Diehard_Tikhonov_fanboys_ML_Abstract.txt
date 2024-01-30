@@ -1,6 +1,5 @@
 This project focuses on the creation of a flexible neural network that can easily adapt to any kind of problem (from classification to regression). 
-The models are highly customisable and easy to use. 
-The implementation of any algorithms are very precise and intuitive. 
+The models are highly customisable and easy to use. The implementation of any algorithms are very precise and intuitive. 
 In the project slides, we provided detailed information about the process of model selection and model assessment of the final model used for the cup. 
 In short, the final model is a MLP with units [30,15,3] with TanH for each hidden layer and Linear for the output layer. 
 Further information about the final model are also in the slides.
