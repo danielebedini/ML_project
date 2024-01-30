@@ -12,7 +12,7 @@ X, y = readTrainingCupData("data/cup/ML-CUP23-TR.csv")
 start = time.time()
 
 #here we train on all the data for the final model
-ensemble = Ensemble(X, y, 1)
+ensemble = Ensemble(X, y, 10)
 
 end = time.time()
 print("Training time: ", end-start)
@@ -21,6 +21,10 @@ print("Training time: ", end-start)
 blindX = readTestCupData("data/cup/ML-CUP23-TS.csv")
 results = ensemble.predict(blindX)
 
-with open("blindResult", 'a') as file:
+with open("Diehard_Tikhonov_fanboys_ML-CUP23-TS.csv", 'a') as file:
+    file.write("# Davide Borghini, Daniele Bedini\n")
+    file.write("# Diehard Tikhonov Fanboys\n")
+    file.write("# ML-CUP23\n")
+    file.write("# Submission Date 30/01/2024\n")
     for i in range(results.shape[0]):
         file.write(f'{i+1},{results[i][0]},{results[i][1]},{results[i][2]}\n')
