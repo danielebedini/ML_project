@@ -1,5 +1,6 @@
 # Machine Learning project
-Exam project for the university course of Machine Learning from the Master Degree in Artificial Intelligence. Prof. Alessio Micheli.
+Exam project for the university course of Machine Learning from the Master Degree in Artificial Intelligence. 
+Prof. Alessio Micheli.
 
 ## Important!
 Before executing the code, read carefully the file "requirements.txt". We used the most famous libraries such as NumPy and MatPlotLib, but for the right version we reccomend to check the requirements file.
@@ -14,3 +15,10 @@ Once you have selected the model and the dataset, you can run the following comm
 python [folder of the model]/model_name.py
 ```
 In the *utilities.py* file you can find all the other utility methods such as one hot encoding, methods for the plots and a method to print the progress bar.
+
+## Other notes
+In general, for training usually it takes less than 10 seconds.
+
+For the final cup model, it takes about 1 minute, because it is an ensemble of 10 models, based on the selected one.
+
+These number refers to an Apple Silicon M1 and M2, with a NumPy version that exploits GPU accelleration.
