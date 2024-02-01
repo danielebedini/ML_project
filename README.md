@@ -33,4 +33,4 @@ In general, for training usually it takes less than 10 seconds.
 
 For the final cup model, it takes about 1 minute, because it is an ensemble of 10 models, based on the selected one.
 
-These number refers to an Apple Silicon M1 and M2, with a NumPy version that exploits GPU accelleration.
+These numbers refers to an Apple Silicon M1 and M2, with a NumPy version that exploits GPU accelleration.
